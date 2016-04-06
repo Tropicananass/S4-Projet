@@ -6,8 +6,6 @@
 
 #include "globals.h"
 
-//gcc src/affichage_plateau.c -Wall -std=c99 `sdl-config --cflags --libs` -g -lm -o src/plateau
-
 /* Internes */
 /* source : http://www.gnurou.org/writing/linuxmag/sdl/partie1 */
 
@@ -100,7 +98,7 @@ void Quadrille (plateau_t p)
 	Hexagon (hex, p->r, SDL_MapRGB (p->window->format, 100, 100, 100), SDL_MapRGB (p->window->format, 50, 50, 50), &(p->l));
 	for (int i = 0; i < NBSIDE; ++i)
 	{
-		int dx = p->marge_hori + i * (p->l + 1);//(2 * rayon * cos(PI/6));
+		int dx = p->marge_hori + i * (p->l + 1);
 		for (int j = 0; j < NBSIDE; ++j)
 		{
 			SDL_Rect position = {dx + j * (p->l + 1) / 2, p->marge_vert + j * (1.5 * p->r)};
@@ -109,6 +107,26 @@ void Quadrille (plateau_t p)
 	}
 	SDL_FreeSurface(hex);
 	SDL_Flip (p->window);
+}
+
+void define_rayon (plateau_t p)
+{
+	int decal_droite = 40;
+	p->marge_vert = p->window->h / 6;
+	int width = p->window->w - 2 * decal_droite;
+	int height = p->window->h - 2 * p->marge_vert;
+	int r1 = (height - (NBSIDE - 1)) / (.5 + NBSIDE * 1.5);
+	int r2 = width / ((3 * NBSIDE - 1) * cos (PI/6));
+	if (r1 < r2)
+	{
+		p->r = r1 - r1%2;
+		p->marge_hori = p->window->w - decal_droite - 1.5 * (NBSIDE) * 2 * p->r * cos(PI/6);
+	}
+	else
+	{
+		p->r = r2 - r2%2;
+		p->marge_hori = p->window->w - decal_droite - 1.5 * (NBSIDE) * 2 * p->r * cos(PI/6);
+	}
 }
 
 /*Externes*/
@@ -140,32 +158,14 @@ plateau_t init_plateau (SDL_Surface* window)
 {
 	plateau_t p = malloc (sizeof (struct s_plateau));
 	p->window = window;
-	p->marge_hori = 40;
-	p->marge_vert = 40;
-	int width = window->w - 2 * p->marge_hori;
-	int height = window->h - 2 * p->marge_vert;
-	int r1 = (height - (NBSIDE - 1)) / (.5 + NBSIDE * 1.5);
-	int r2 = width / ((3 * NBSIDE - 1) * cos (PI/6));
-	if (r1 < r2)
-		p->r = r1 - r1%2;
-	else
-		p->r = r2 - r2%2;
+	define_rayon(p);
 	Quadrille (p);
 	return p;
 }
 
 plateau_t actu_plateau (plateau_t p)
 {
-	p->marge_hori = 40;
-	p->marge_vert = 40;
-	int width = p->window->w - 2 * p->marge_hori;
-	int height = p->window->h - 2 * p->marge_vert;
-	int r1 = (height - (NBSIDE - 1)) / (.5 + NBSIDE * 1.5);
-	int r2 = width / ((3 * NBSIDE - 1) * cos (PI/6));
-	if (r1 < r2)
-		p->r = r1 - r1%2;
-	else
-		p->r = r2 - r2%2;
+	define_rayon(p);
 	Quadrille (p);
 	return p;
 }
@@ -174,47 +174,3 @@ void free_plateau (plateau_t p)
 {
 	free (p);
 }
-
-
-/*int main (int argc, char* argv[])
-{
-	if (SDL_Init (SDL_INIT_VIDEO))
-		fprintf (stderr, "Erreur d'inistialisation SDL : %s\n", SDL_GetError());
-	
-	SDL_DisplayFormat() dm;
-	if (SDL_GetDisplayMode(0, &dm) != 0) {
-	    SDL_Log("SDL_GetDisplayMode failed: %s", SDL_GetError());
-	    return 1;
-	}
-	SDL_Surface* window = SDL_SetVideoMode (DWIDTH, DHEIGHT, BPP, SDL_HWSURFACE | SDL_RESIZABLE);
-	SDL_FillRect (window, NULL, SDL_MapRGB(window->format, 0, 0, 0));
-	SDL_Flip (window);
-	SDL_Color c = {100, 100, 100};
-	Affiche_plateau (window, c);
-	
-	bool end = false;
-	
-	while (!end)
-	{
-		SDL_Event event;
-		SDL_WaitEvent (&event);
-		switch (event.type)
-		{
-			case SDL_VIDEORESIZE:
-				if (event.resize.w >= DWIDTH && event.resize.h >= DHEIGHT )
-				{
-					window = SDL_SetVideoMode (event.resize.w, event.resize.h, BPP, SDL_HWSURFACE | SDL_RESIZABLE);
-					Affiche_plateau (window, c);
-				}
-				else // force la fenetre a minimum Default Size : marche moyen
-					window = SDL_SetVideoMode (DWIDTH, DHEIGHT, BPP, SDL_HWSURFACE | SDL_RESIZABLE);
-				break;
-			case SDL_QUIT:
-				end = true;
-				break;
-		}
-	}
-	SDL_FreeSurface (window);
-	SDL_Quit ();
-	return 0;
-}*/

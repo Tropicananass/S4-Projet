@@ -1,7 +1,6 @@
 #ifndef _GLOBALS_H_
 #define _GLOBALS_H_
 
-//#define BPP 32
 #define DWIDTH 800
 #define DHEIGHT 600
 #define NBSIDE 11
