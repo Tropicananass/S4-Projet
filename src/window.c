@@ -1,18 +1,27 @@
 #include "window.h"
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
 #include "globals.h"
+#include "param.h"
 
 
 SDL_Surface* init_window ()
 {
 	if (SDL_Init (SDL_INIT_VIDEO))
 		fprintf (stderr, "Erreur d'inistialisation SDL : %s\n", SDL_GetError());
+
+	if (TTF_Init ())
+		fprintf (stderr, "Erreur d'inistialisation SDL_ttf : %s\n", SDL_GetError());
 	
 	SDL_Surface* window = SDL_SetVideoMode (DWIDTH, DHEIGHT, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
-	SDL_FillRect (window, NULL, SDL_MapRGB(window->format, 0, 0, 0));
-	SDL_Flip (window);
 	return window;
+}
+
+void Background (SDL_Surface* window)
+{
+	SDL_FillRect (window, NULL, param->background);
+	SDL_Flip (window);
 }
 
 SDL_Surface* resize_window (SDL_Surface* window, SDL_Event* event)
@@ -29,6 +38,8 @@ SDL_Surface* resize_window (SDL_Surface* window, SDL_Event* event)
 		window = SDL_SetVideoMode(w, h, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
 	else
 		window = SDL_SetVideoMode (DWIDTH, DHEIGHT, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
+	SDL_FillRect (window, NULL, param->background);
+	SDL_Flip (window);
 	return window;
 }
 
@@ -40,7 +51,7 @@ SDL_Surface* fullscreen_window (SDL_Surface* window)
 	}
 	else
 	{
-		SDL_Rect** modes = SDL_ListModes(window->format, SDL_HWSURFACE  | SDL_DOUBLEBUF| SDL_FULLSCREEN);
+		SDL_Rect** modes = SDL_ListModes(window->format, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF);
 		if(modes == (SDL_Rect **)0)
 		{
 			printf("No modes available!\n");
@@ -61,5 +72,13 @@ SDL_Surface* fullscreen_window (SDL_Surface* window)
 			window = SDL_SetVideoMode(modes[0]->w, modes[0]->h, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF);
 		}
 	}
+	SDL_FillRect (window, NULL, param->background);
+	SDL_Flip (window);
 	return window;
+}
+
+void reset_window (SDL_Surface* window)
+{
+	SDL_FillRect (window, NULL, param->background);
+	SDL_Flip (window);
 }

@@ -1,8 +1,11 @@
 #ifndef _ACTION_PLATEAU_H_
 #define _ACTION_PLATEAU_H_
 
-#include "affichage_plateau.h"
+#include <SDL/SDL_events.h>
+
 #include "globals.h"
+
+void selection (plateau_t p, curseur_t c);
 
 void deplacement (plateau_t p, SDL_Event* event, curseur_t* c);
 

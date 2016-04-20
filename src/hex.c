@@ -6,8 +6,9 @@
 #include <SDL/SDL.h>
 #include "window.h"
 #include "globals.h"
-#include "affichage_menu_principal.h"
+#include "menu_principal.h"
 #include "en_jeu.h"
+#include "param.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -31,13 +32,28 @@ void sleep_ms(int milliseconds) // cross-platform sleep function
 #endif
 }
 
-int main (void)
+int main(int argc, char **argv)
 {
 	SDL_Surface* window = init_window();
-	//Affiche_menu_principal(window);
-	en_jeu (window);
+	load_param(window);
+	Background (window);
+	bool end = 0;
+	while (!end)
+	{
+		int retour = menu_principal(window);
+		reset_window(window);
+		switch (retour)
+		{
+		case M_JOUER:
+			en_jeu (window);
+			reset_window(window);
+			break;
+		case M_QUITTER:
+			end = 1;
+		}
+	}
+	save_param(window);
 	SDL_FreeSurface (window);
 	SDL_Quit ();
-	
 	return 0;
 }

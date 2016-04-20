@@ -3,9 +3,11 @@
 
 #include <SDL/SDL.h>
 
+#include "globals.h"
+
 #define COLOR 32
 
-typedef struct s_plateau* plateau_t;
+void putPixel(SDL_Surface * surface, Uint16 x, Uint16 y, Uint32 color);
 
 void Affiche_hexagon (plateau_t p, int x, int y, int state);
 

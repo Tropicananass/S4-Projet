@@ -1,11 +1,27 @@
-//#include "action_plateau.h"
-
-#include <stdbool.h>
-#include <math.h>
-
 #include "action_plateau.h"
 
-#define RAC3 1.73205080757
+#include <math.h>
+#include <SDL/SDL.h>
+
+#include "affichage_plateau.h"
+#include "globals.h"
+
+void selection (plateau_t p, curseur_t c)
+{
+	if (0 <= c.x && c.x < NBSIDE && 0 <= c.y && c.y < NBSIDE && p->grid [c.x * NBSIDE + c.y] == 0)
+	{
+		p->grid [c.x * NBSIDE + c.y] = PLAYER(p->player);
+		p->player = !p->player;
+		Affiche_hexagon(p, c.x, c.y, PLAYER(p->player));
+	}
+	/*for (int x = 0; x < NBSIDE; ++x)
+	{
+			for (int y = 0; y < NBSIDE; ++y)
+				printf ("%d ", p->grid [y * NBSIDE + x]);
+			printf ("\n");
+	}
+	printf ("\n");*/
+}
 
 void deplacement (plateau_t p, SDL_Event* event, curseur_t* c)
 {
@@ -13,10 +29,10 @@ void deplacement (plateau_t p, SDL_Event* event, curseur_t* c)
 	{
 	case SDL_MOUSEMOTION:
 	{
-		vec2 pos = {event->motion.x - (p->marge_hori + p->r - p->l/2 - 1), event->motion.y - (p->marge_vert  + 1)};
-		int ligne =  round(pos.y / (1.5 * p->r + 1) - .5);
+		vec2 pos = {event->motion.x - (p->marge_hori + p->r - p->l/2 - 2), event->motion.y - (p->marge_vert  + 1)};
+		int ligne =  round(pos.y / (1.5 * p->r) - .5);
 		int colone = round(pos.x / (p->l + 1.) - .5);
-		vec2 relative = {pos.x % (p->l + 1), pos.y % (int)(1.5 * p->r + 1)};
+		vec2 relative = {pos.x % (p->l + 1), pos.y % (int)(1.5 * p->r)};
 		vec2 proj = {relative.y + relative.x / RAC3, relative.y - relative.x / RAC3};
 		vec2 hex;
 		if (ligne % 2)
@@ -70,7 +86,7 @@ void deplacement (plateau_t p, SDL_Event* event, curseur_t* c)
 			c->x = hex.x;
 			c->y = hex.y;
 			if (0 <= hex.x && hex.x < NBSIDE && 0 <= hex.y && hex.y < NBSIDE)
-				Affiche_hexagon(p, c->x, c->y, J1);
+				Affiche_hexagon(p, c->x, c->y, PLAYER(p->player));
 		}
 
 
@@ -107,7 +123,7 @@ void deplacement (plateau_t p, SDL_Event* event, curseur_t* c)
 				c->y = 0;
 			if (c->y < 0)
 				c->y = NBSIDE - 1;
-			Affiche_hexagon(p, c->x, c->y, J1);
+			Affiche_hexagon(p, c->x, c->y, PLAYER(p->player));
 			sleep_ms (100);
 		}
 		break;

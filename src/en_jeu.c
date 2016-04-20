@@ -15,8 +15,8 @@
 void en_jeu (SDL_Surface* window)
 {
 	plateau_t plateau = init_plateau (window);
-	vec2 c = {-1, -1};
-	int end = 0;
+	vec2 c = {0, 0};
+	bool end = 0;
 	while (!end)
 	{
 		SDL_Event event;
@@ -24,15 +24,9 @@ void en_jeu (SDL_Surface* window)
 		switch (event.type)
 		{
 			case SDL_VIDEORESIZE:
-			{
 				resize_window(window, &event);
 				plateau = actu_plateau(plateau);
 				break;
-			}
-			case SDL_MOUSEBUTTONDOWN:
-			{
-				break;
-			}
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_ESCAPE)
 					end = 1;
@@ -41,8 +35,13 @@ void en_jeu (SDL_Surface* window)
 					window = fullscreen_window(window);
 					plateau = actu_plateau(plateau);
 				}
+				else if (event.key.keysym.sym == SDLK_RETURN)
+					selection (plateau, c);
 				else if (SDLK_UP <= event.key.keysym.sym && event.key.keysym.sym <= SDLK_LEFT)
 					deplacement(plateau, &event, &c);
+				break;
+			case SDL_MOUSEBUTTONUP:
+				selection (plateau, c);
 				break;
 			case SDL_MOUSEMOTION:
 				deplacement(plateau, &event, &c);

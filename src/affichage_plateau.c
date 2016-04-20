@@ -1,101 +1,19 @@
 #include "affichage_plateau.h"
 
-#include <stdlib.h>
-#include <stdbool.h>
 #include <math.h>
+#include <stdlib.h>
 
-#include "globals.h"
+#include "param.h"
+#include "draw.h"
+
+#define DBORD 4
 
 /* Internes */
-/* source : http://www.gnurou.org/writing/linuxmag/sdl/partie1 */
-
-void putPixel(SDL_Surface * surface, Uint16 x, Uint16 y, Uint32 color)
-{
-    /* Nombre de bits par pixels de la surface d'écran */
-    Uint8 bpp = surface->format->BytesPerPixel;
-    /* Pointeur vers le pixel à remplacer (pitch correspond à la taille 
-       d'une ligne d'écran, c'est à dire (longueur * bitsParPixel) 
-       pour la plupart des cas) */
-    Uint8 * p = ((Uint8 *)surface->pixels) + y * surface->pitch + x * bpp;
-     switch(bpp)
-    {
-	  case 1:
-		*p = (Uint8) color;
-		break;
-        case 2:
-            *(Uint16 *)p = (Uint16) color;
-            break;
-        case 3:
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            {
-                *(Uint16 *)p = ((color >> 8) & 0xff00) | ((color >> 8) & 0xff);
-                *(p + 2) = color & 0xff;
-            }
-            else
-            {
-                *(Uint16 *)p = color & 0xffff;
-                *(p + 2) = ((color >> 16) & 0xff) ;
-            }
-            break;
-        case 4:
-            *(Uint32 *)p = color;
-            break;
-    }
-}
-
-void Central_Square (SDL_Surface* hex, int* x, int* y, Uint32 color, int r)
-{
-	int width = x[0] - x[2];
-	int height = r;//y[2] - y[3];
-	
-	SDL_Surface* square = SDL_CreateRGBSurface (SDL_HWSURFACE, width, height, 32, 0, 0, 0, 0);
-	SDL_FillRect (square, NULL, color);
-	SDL_Rect position = {x[3], y[3]};
-	SDL_BlitSurface (square, NULL, hex, &position);
-	SDL_FreeSurface (square);
-}
-
-void Triangles (SDL_Surface* hex, int* x, int* y, Uint32 color, int r)
-{
-	int h = r/2;//y[1] - y[2];
-	int l = (x[0] - x[2])/2;
-	SDL_LockSurface (hex);
-	for (int j = 0; j < h; ++j)
-		for (int i = - l * (h - j) / h; i <= l * (h - j) / h; ++i)
-		{
-			putPixel (hex, x[1] + i - 1, y[3] - j, color);
-			putPixel (hex, x[1] + i - 1, y[0] + j, color);
-		}
-	SDL_UnlockSurface (hex);
-}
-
-void Hexagon (SDL_Surface* hex, int rayon, Uint32 color_out, Uint32 color_in, int* l)
-{
-	int x [4];
-	int y [4];
-	for (int i = 0; i < 4; ++i)
-	{
-		x [i] = cos(i * PI/3 + PI/6) * rayon + rayon;
-		y [i] = sin(i * PI/3 + PI/6) * rayon + rayon;
-	}
-	*l = x[0] - x[2];
-	Central_Square (hex, x, y, color_out, rayon);
-	Triangles (hex, x, y, color_out, rayon);
-	for (int i = 0; i < 4; ++i)
-	{
-		x [i] = cos(i * PI/3 + PI/6) * (rayon - 4) + rayon;
-		y [i] = sin(i * PI/3 + PI/6) * (rayon - 4) + rayon;
-	}
-	Central_Square (hex, x, y, color_in, rayon - 4);
-	Triangles (hex, x, y, color_in, rayon - 4);
-	SDL_Flip (hex);
-	SDL_SetColorKey (hex , SDL_SRCCOLORKEY, SDL_MapRGB( hex->format, 0, 0, 0)); // set black as transparent
-}
 
 void Quadrille (plateau_t p)
 {
 	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
-	Hexagon (hex, p->r, SDL_MapRGB (p->window->format, 100, 100, 100), SDL_MapRGB (p->window->format, 50, 50, 50), &(p->l));
+	Hexagon (hex, p->r, param->ex, param->in, DBORD, &(p->l));
 	for (int i = 0; i < NBSIDE; ++i)
 	{
 		int dx = p->marge_hori + i * (p->l + 1);
@@ -106,6 +24,42 @@ void Quadrille (plateau_t p)
 		}
 	}
 	SDL_FreeSurface(hex);
+	SDL_Flip (p->window);
+}
+
+void Quadrille_bis (plateau_t p)
+{
+	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
+	SDL_Surface* hex1 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
+	SDL_Surface* hex2 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
+	Hexagon (hex, p->r, param->ex, param->in, DBORD, &(p->l));
+	Hexagon (hex1, p->r, param->ex, param->in, DBORD, &(p->l));
+	Circle (hex1, p->l, param->j2);
+	Hexagon (hex2, p->r, param->ex, param->in, DBORD, &(p->l));
+	Circle (hex2, p->l, param->j1);
+	for (int i = 0; i < NBSIDE; ++i)
+	{
+		int dx = p->marge_hori + i * (p->l + 1);
+		for (int j = 0; j < NBSIDE; ++j)
+		{
+			SDL_Rect position = {dx + j * (p->l + 1) / 2, p->marge_vert + j * (1.5 * p->r)};
+			switch (p->grid[i * NBSIDE + j])
+			{
+			case 0:
+				SDL_BlitSurface (hex, NULL, p->window, &position);
+				break;
+			case 1:
+				SDL_BlitSurface (hex1, NULL, p->window, &position);
+				break;
+			case 2:
+				SDL_BlitSurface (hex2, NULL, p->window, &position);
+				break;
+			}
+		}
+	}
+	SDL_FreeSurface(hex);
+	SDL_FreeSurface(hex1);
+	SDL_FreeSurface(hex2);
 	SDL_Flip (p->window);
 }
 
@@ -139,16 +93,25 @@ void Affiche_hexagon (plateau_t p, int x, int y, int state)
 	switch (state)
 	{
 	case J1 :
-		c = SDL_MapRGB (p->window->format, 255, 0, 0);
+		c = param->j1;
 		break;
 	case J2 :
-		c = SDL_MapRGB (p->window->format, 0, 0, 255);
+		c = param->j2;
 		break;
 	case NORMAL :
-		c = SDL_MapRGB (p->window->format, 100, 100, 100);
+		c = param->ex;
 		break;
 	}
-	Hexagon (hex, p->r, c, SDL_MapRGB (p->window->format, 50, 50, 50), &(p->l));
+	Hexagon (hex, p->r, c, param->in, DBORD, &(p->l));
+	switch (p->grid[x * NBSIDE + y])
+	{
+	case J1:
+		Circle (hex, p->l, param->j1);
+		break;
+	case J2:
+		Circle (hex, p->l, param->j2);
+		break;
+	}
 	SDL_BlitSurface (hex, NULL, p->window, &position);
 	SDL_FreeSurface (hex);
 	SDL_Flip (p->window);
@@ -157,7 +120,12 @@ void Affiche_hexagon (plateau_t p, int x, int y, int state)
 plateau_t init_plateau (SDL_Surface* window)
 {
 	plateau_t p = malloc (sizeof (struct s_plateau));
+	p->grid = malloc (sizeof (int) * NBSIDE * NBSIDE);
+	for (int x = 0; x < NBSIDE; ++x)
+		for (int y = 0; y < NBSIDE; ++y)
+			p->grid [x * NBSIDE + y] = 0;
 	p->window = window;
+	p->player = false;
 	define_rayon(p);
 	Quadrille (p);
 	return p;
@@ -166,11 +134,12 @@ plateau_t init_plateau (SDL_Surface* window)
 plateau_t actu_plateau (plateau_t p)
 {
 	define_rayon(p);
-	Quadrille (p);
+	Quadrille_bis (p);
 	return p;
 }
 
 void free_plateau (plateau_t p)
 {
+	free (p->grid);
 	free (p);
 }
