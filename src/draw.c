@@ -49,19 +49,13 @@ void putPixel(SDL_Surface * surface, Uint16 x, Uint16 y, Uint32 color)
 
 void Central_Square (SDL_Surface* hex, int* x, int* y, Uint32 color, int r)
 {
-	int width = x[0] - x[2];
-	int height = r;//y[2] - y[3];
-
-	SDL_Surface* square = SDL_CreateRGBSurface (SDL_HWSURFACE, width, height, 32, 0, 0, 0, 0);
-	SDL_FillRect (square, NULL, color);
-	SDL_Rect position = {x[3], y[3]};
-	SDL_BlitSurface (square, NULL, hex, &position);
-	SDL_FreeSurface (square);
+	SDL_Rect position = {x[3], y[3], x[0] - x[2], r};
+	SDL_FillRect (hex, &position, color);
 }
 
 void Triangles (SDL_Surface* hex, int* x, int* y, Uint32 color, int r)
 {
-	int h = r/2;//y[1] - y[2];
+	int h = r/2;
 	int l = (x[0] - x[2])/2;
 	SDL_LockSurface (hex);
 	for (int j = 0; j < h; ++j)
@@ -71,6 +65,27 @@ void Triangles (SDL_Surface* hex, int* x, int* y, Uint32 color, int r)
 			putPixel (hex, x[1] + i - 1, y[0] + j, color);
 		}
 	SDL_UnlockSurface (hex);
+}
+
+void Hexagon_single (SDL_Surface* hex, int rayon, Uint32 color, int* l)
+{
+	if (color == SDL_MapRGB(hex->format, 0, 0, 0))
+	{
+		SDL_FillRect (hex, NULL, SDL_MapRGB(hex->format, 100, 100, 100));
+		SDL_SetColorKey (hex , SDL_SRCCOLORKEY, SDL_MapRGB(hex->format, 100, 100, 100));
+	}
+	else
+		SDL_SetColorKey (hex , SDL_SRCCOLORKEY, SDL_MapRGB(hex->format, 0, 0, 0));
+	int x [4];
+	int y [4];
+	for (int i = 0; i < 4; ++i)
+	{
+		x [i] = cos(i * PI/3 + PI/6) * rayon + rayon;
+		y [i] = sin(i * PI/3 + PI/6) * rayon + rayon;
+	}
+	*l = x[0] - x[2];
+	Central_Square (hex, x, y, color, rayon);
+	Triangles (hex, x, y, color, rayon);
 }
 
 void Hexagon (SDL_Surface* hex, int rayon, Uint32 color_out, Uint32 color_in, int bord, int* l)
@@ -92,7 +107,6 @@ void Hexagon (SDL_Surface* hex, int rayon, Uint32 color_out, Uint32 color_in, in
 	}
 	Central_Square (hex, x, y, color_in, rayon - bord);
 	Triangles (hex, x, y, color_in, rayon - bord);
-	SDL_Flip (hex);
 	SDL_SetColorKey (hex , SDL_SRCCOLORKEY, SDL_MapRGB(hex->format, 0, 0, 0)); // set black as transparent
 }
 

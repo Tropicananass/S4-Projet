@@ -16,6 +16,8 @@ void Central_Square (SDL_Surface* hex, int* x, int* y, Uint32 color, int r);
 
 void Triangles (SDL_Surface* hex, int* x, int* y, Uint32 color, int r);
 
+void Hexagon_single (SDL_Surface* hex, int rayon, Uint32 color, int* l);
+
 void Hexagon (SDL_Surface* hex, int rayon, Uint32 color_out, Uint32 color_in, int bord, int* l);
 
 void Circle (SDL_Surface* hex, int l, Uint32 color);

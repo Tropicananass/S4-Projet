@@ -2,10 +2,13 @@
 #define _GLOBALS_H_
 
 #include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
+#include <SDL/SDL_mixer.h>
 #include <stdbool.h>
 
 #define DWIDTH 800
 #define DHEIGHT 600
+
 #define NBSIDE 11
 
 #define PI 3.14159265
@@ -57,8 +60,8 @@ typedef struct s_plateau {
 typedef struct s_param {
 	Uint32 in, ex, j1, j2, background;
 	SDL_Color rgb_in, rgb_ex, rgb_j1, rgb_j2, rgb_background;
+	TTF_Font* font;
+	Mix_Music* click;
 }* param_t;
-
-void sleep_ms(int milliseconds);
 
 #endif /* _GLOBALS_H_ */

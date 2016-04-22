@@ -2,6 +2,7 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#include <SDL/SDL_mixer.h>
 #include "globals.h"
 #include "param.h"
 
@@ -9,19 +10,39 @@
 SDL_Surface* init_window ()
 {
 	if (SDL_Init (SDL_INIT_VIDEO))
-		fprintf (stderr, "Erreur d'inistialisation SDL : %s\n", SDL_GetError());
-
+	{
+		fprintf (stderr, "SDL_Init failed : %s\n", SDL_GetError());
+		exit (1);
+	}
 	if (TTF_Init ())
-		fprintf (stderr, "Erreur d'inistialisation SDL_ttf : %s\n", SDL_GetError());
-	
-	SDL_Surface* window = SDL_SetVideoMode (DWIDTH, DHEIGHT, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
-	return window;
-}
+	{
+		fprintf (stderr, "TTF_Init failed : %s\n", SDL_GetError());
+		exit (2);
+	}
 
-void Background (SDL_Surface* window)
-{
-	SDL_FillRect (window, NULL, param->background);
-	SDL_Flip (window);
+	SDL_WM_SetIcon (SDL_LoadBMP("ressources/ico.bmp"), NULL);
+	SDL_WM_SetCaption ("HEX (...a saute !)", "");
+
+	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1)
+		fprintf(stderr, "Mix init failed : %s\n", Mix_GetError());
+
+	const SDL_VideoInfo* info = SDL_GetVideoInfo();
+	int bpp;
+	if (info == NULL)
+	{
+		fprintf (stderr, "Unable to get video information\n Trying to force BPP to 8.\n");
+		bpp = 8;
+	}
+	else
+		bpp = info->vfmt->BitsPerPixel;
+
+	SDL_Surface* window = SDL_SetVideoMode (DWIDTH, DHEIGHT, bpp, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
+	if (window == NULL)
+	{
+		fprintf (stderr, "Unable to set video mode : %s\n", SDL_GetError());
+		exit (3);
+	}
+	return window;
 }
 
 SDL_Surface* resize_window (SDL_Surface* window, SDL_Event* event)
@@ -32,12 +53,25 @@ SDL_Surface* resize_window (SDL_Surface* window, SDL_Event* event)
 		w = event->resize.w;
 		h = event->resize.h;
 	}
-	printf ("%d - %d\n", w, h);
 	SDL_FreeSurface (window);
-	if (w >= DWIDTH && h >= DHEIGHT)
-		window = SDL_SetVideoMode(w, h, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
+	const SDL_VideoInfo* info = SDL_GetVideoInfo();
+	int bpp;
+	if (info == NULL)
+	{
+		fprintf (stderr, "Unable to get video information\n Trying to force BPP to 8.\n");
+		bpp = 8;
+	}
 	else
-		window = SDL_SetVideoMode (DWIDTH, DHEIGHT, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
+		bpp = info->vfmt->BitsPerPixel;
+	if (w >= DWIDTH && h >= DHEIGHT)
+		window = SDL_SetVideoMode(w, h, bpp, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
+	else
+		window = SDL_SetVideoMode (DWIDTH, DHEIGHT, bpp, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
+	if (window == NULL)
+	{
+		fprintf (stderr, "Unable to set video mode : %s\n", SDL_GetError());
+		exit (3);
+	}
 	SDL_FillRect (window, NULL, param->background);
 	SDL_Flip (window);
 	return window;
@@ -45,9 +79,19 @@ SDL_Surface* resize_window (SDL_Surface* window, SDL_Event* event)
 
 SDL_Surface* fullscreen_window (SDL_Surface* window)
 {
+	const SDL_VideoInfo* info = SDL_GetVideoInfo();
+	int bpp;
+	if (info == NULL)
+	{
+		fprintf (stderr, "Unable to get video information\n Trying to force BPP to 8.\n");
+		bpp = 8;
+	}
+	else
+		bpp = info->vfmt->BitsPerPixel;
+
 	if (window->flags & SDL_FULLSCREEN)
 	{
-		window = SDL_SetVideoMode (DWIDTH, DHEIGHT, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
+		window = SDL_SetVideoMode (DWIDTH, DHEIGHT, bpp, SDL_HWSURFACE | SDL_RESIZABLE | SDL_DOUBLEBUF);
 	}
 	else
 	{
@@ -55,7 +99,6 @@ SDL_Surface* fullscreen_window (SDL_Surface* window)
 		if(modes == (SDL_Rect **)0)
 		{
 			printf("No modes available!\n");
-			exit(-1);
 		}
 
 		/* Check if our resolution is restricted */
@@ -64,20 +107,25 @@ SDL_Surface* fullscreen_window (SDL_Surface* window)
 			printf("All resolutions available.\n");
 		}
 		else{
-			/* Print valid modes */
+			/* Print valid modes
 			printf("Available Modes\n");
 			for(int i=0;modes[i];++i)
-				printf("  %d x %d\n", modes[i]->w, modes[i]->h);
+				printf("  %d x %d\n", modes[i]->w, modes[i]->h);*/
 			SDL_FreeSurface (window);
-			window = SDL_SetVideoMode(modes[0]->w, modes[0]->h, SDL_GetVideoInfo()->vfmt->BitsPerPixel, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF);
+			window = SDL_SetVideoMode(modes[0]->w, modes[0]->h, bpp, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF);
 		}
+	}
+	if (window == NULL)
+	{
+		fprintf (stderr, "Unable to set video mode : %s\n", SDL_GetError());
+		exit (3);
 	}
 	SDL_FillRect (window, NULL, param->background);
 	SDL_Flip (window);
 	return window;
 }
 
-void reset_window (SDL_Surface* window)
+void Reset_window (SDL_Surface* window)
 {
 	SDL_FillRect (window, NULL, param->background);
 	SDL_Flip (window);

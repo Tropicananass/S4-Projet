@@ -8,12 +8,17 @@
 #include "param.h"
 
 #include <stdio.h>
+#include <sys/stat.h>
+#include <SDL/SDL_ttf.h>
+#include <SDL/SDL_mixer.h>
 
 #define C_IN SDL_MapRGB (w->format, 50, 50, 50)
 #define C_EX SDL_MapRGB (w->format, 100, 100, 100)
 #define C_J1 SDL_MapRGB (w->format, 255, 0, 0)
 #define C_J2 SDL_MapRGB (w->format, 0, 0, 255)
 #define C_BACKGROUND SDL_MapRGB (w->format, 0, 0, 0)
+
+#define F_FONT "ressources/KeepCalm-Medium.ttf"
 
 void load_param (SDL_Surface* w)
 {
@@ -31,10 +36,17 @@ void load_param (SDL_Surface* w)
 			rgb += 1;
 			c += 1;
 		}
+		param->font = TTF_OpenFont(F_FONT, 100);
+		if (param->font == NULL)
+		{
+			perror (F_FONT);
+			exit (1);
+		}
 	}
 	else
 	{
 		char buffer [100];
+		char police [BUFSIZ] = "";
 		SDL_Color* rgb = &(param->rgb_in);
 		Uint32* c = &(param->in);
 		fscanf (param_file, "%s\n", buffer);
@@ -55,14 +67,30 @@ void load_param (SDL_Surface* w)
 			rgb += 1;
 			c += 1;
 		}
+		fscanf (param_file, "%s", buffer);
+		fscanf (param_file, "%s = %s", buffer, police);
+
+		struct stat  i_dont_care;
+		if (!strcmp (police,"") || stat (police, &i_dont_care))
+			strcpy (police, F_FONT);
+		param->font = TTF_OpenFont(police, 100);
+		if (param->font == NULL)
+		{
+			perror (police);
+			exit (1);
+		}
 		fclose (param_file);
 	}
+	param->click = Mix_LoadMUS("ressources/Click03.wav");
 }
 
 void save_param (SDL_Surface* w)
 {
-	FILE* param_file = fopen ("default", "w");
-	fprintf (param_file, "color\n");
+	FILE* param_file = fopen ("default", "r+");
+	if (param_file == NULL)
+		param_file = fopen ("default", "w+");
+
+	fprintf (param_file, "Colors\n");
 	char* field [5] = {"in", "ex", "j1", "j2", "background",};
 	SDL_Color* rgb = &(param->rgb_in);
 	for (int i = 0; i < 5 ; ++i)
@@ -71,6 +99,25 @@ void save_param (SDL_Surface* w)
 		//printf ("%d - %d - %d\n", rgb->r, rgb->g, rgb->b);
 		rgb += 1;
 	}
+
+	fprintf (param_file, "Police\n");
+
+	char buffer [100] = "";
+	char police [BUFSIZ] = "";
+	int readed = fscanf (param_file, "%s = %s\n", buffer, police);
+	if (strcmp(police, F_FONT))
+	{
+		struct stat i_dont_care;
+		if (stat (police, &i_dont_care))
+		{
+			if (readed == 2)
+				fseek (param_file, -strlen(buffer) - strlen(police) - 3, SEEK_CUR);
+			else if (readed == 1)
+				fseek (param_file, -strlen(buffer), SEEK_CUR);
+			fprintf (param_file, "police = %s", F_FONT);
+		}
+	}
 	free (param);
 	fclose (param_file);
+	Mix_FreeMusic(param->click);
 }

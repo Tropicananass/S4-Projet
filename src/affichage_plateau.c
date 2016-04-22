@@ -12,7 +12,7 @@
 
 void Quadrille (plateau_t p)
 {
-	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
+	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	Hexagon (hex, p->r, param->ex, param->in, DBORD, &(p->l));
 	for (int i = 0; i < NBSIDE; ++i)
 	{
@@ -29,9 +29,9 @@ void Quadrille (plateau_t p)
 
 void Quadrille_bis (plateau_t p)
 {
-	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
-	SDL_Surface* hex1 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
-	SDL_Surface* hex2 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
+	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
+	SDL_Surface* hex1 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
+	SDL_Surface* hex2 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	Hexagon (hex, p->r, param->ex, param->in, DBORD, &(p->l));
 	Hexagon (hex1, p->r, param->ex, param->in, DBORD, &(p->l));
 	Circle (hex1, p->l, param->j2);
@@ -88,7 +88,7 @@ void define_rayon (plateau_t p)
 void Affiche_hexagon (plateau_t p, int x, int y, int state)
 {
 	SDL_Rect position = {p->marge_hori + x * (p->l + 1) + y * (p->l + 1) / 2, p->marge_vert + y * (1.5 * p->r)};
-	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, 32, 0, 0, 0, 0);
+	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	Uint32 c;
 	switch (state)
 	{
