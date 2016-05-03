@@ -12,7 +12,9 @@
 #include <stdbool.h>
 #include "globals.h"
 
-void deplacement_menu (menu_t m, SDL_Event* event);
+void deplacement_menu_mouse (menu_t m, const SDL_Event* event);
+
+void deplacement_menu_key (menu_t m, SDLKey key);
 
 bool selection_menu (menu_t m, int* r);
 

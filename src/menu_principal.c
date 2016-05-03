@@ -11,6 +11,7 @@ menu_t init_menu_principal (SDL_Surface* window)
 	m->window = window;
 	m->cur.x = 1;
 	m->cur.y = 1;
+	m->c = 0;
 	return m;
 }
 
@@ -111,18 +112,33 @@ int menu_principal (SDL_Surface* window)
 				else if (event.key.keysym.sym == SDLK_RETURN)
 					end = selection_menu (m, &retour);
 				else if (SDLK_UP <= event.key.keysym.sym && event.key.keysym.sym <= SDLK_LEFT)
-					deplacement_menu (m, &event);
+					deplacement_menu_key (m, event.key.keysym.sym);
+				else
+					east1 (window, event.key.keysym.sym);
 				break;
 			case SDL_MOUSEBUTTONUP:
 				end = selection_menu (m, &retour);
 				break;
 			case SDL_MOUSEMOTION:
-				deplacement_menu (m, &event);
+				deplacement_menu_mouse (m, &event);
 				break;
 			case SDL_QUIT:
 				retour = M_QUITTER;
 				end = 1;
 				break;
+			default:
+			{
+				Uint8 *keyboard = SDL_GetKeyState(NULL);
+				if (keyboard [SDLK_UP])
+					deplacement_menu_key (m, SDLK_UP);
+				if (keyboard [SDLK_DOWN])
+					deplacement_menu_key (m, SDLK_DOWN);
+				if (keyboard [SDLK_LEFT])
+					deplacement_menu_key (m, SDLK_LEFT);
+				if (keyboard [SDLK_RIGHT])
+					deplacement_menu_key (m, SDLK_RIGHT);
+			}
+
 		}
 		if (retour == M_OPTIONS)
 		{

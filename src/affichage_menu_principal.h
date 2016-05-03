@@ -23,4 +23,6 @@ void free_scroll (scrolling_t s);
 
 SDL_Event scroll_msg (SDL_Surface* window, scrolling_t s);
 
+void east1 (SDL_Surface* window, SDLKey key);
+
 #endif /* _AFFICHAGE_MENU_PRICIPAL_ */

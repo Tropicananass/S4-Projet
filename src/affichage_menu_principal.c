@@ -356,9 +356,10 @@ void free_scroll (scrolling_t s)
 
 SDL_Event scroll_msg (SDL_Surface* window, scrolling_t s)
 {
-	SDL_Event event;
+	int t0 = SDL_GetTicks();
+	SDL_Event event = {0};
 	bool delay;
-	while ((delay = !SDL_PollEvent(&event)))
+	while ((delay = !SDL_PollEvent(&event)) && SDL_GetTicks() - t0 < 200)
 	{
 		for (int i = s->first_msg; i < s->first_msg + s->nb_msg; ++i)
 		{
@@ -386,4 +387,91 @@ SDL_Event scroll_msg (SDL_Surface* window, scrolling_t s)
 			SDL_Delay(5);
 	}
 	return event;
+}
+
+void banane (SDL_Surface* window)
+{
+	SDL_Surface* gif [8];
+	SDL_Rect p = {0, 0};
+
+	for (int i = 1; i <= 8; ++i)
+	{
+		char dir [254];
+		sprintf (dir, "ressources/.east/Dancing_Banana%d.png", i);
+		SDL_Surface* tmpB = IMG_Load (dir);
+		float ch = window->h / (float)tmpB->h, cw = window->w / (float)tmpB->w;
+		if (cw < ch)
+		{
+			gif [i - 1] = rotozoomSurface(tmpB, .0, cw, 1);
+			p.y = (window->h - gif [i - 1]->h) / 2;
+		}
+		else
+		{
+			gif [i - 1] = rotozoomSurface(tmpB, .0, ch, 1);
+			p.x = (window->w - gif [i - 1]->w) / 2;
+		}
+		SDL_FreeSurface (tmpB);
+	}
+
+	SDL_Surface* erase = SDL_CreateRGBSurface (SDL_HWSURFACE, gif[0]->w, gif[0]->h, window->format->BitsPerPixel, 0, 0, 0, 0);
+	p.w = gif [0]->w;
+	p.h = gif [0]->h;
+	SDL_BlitSurface (window, &p, erase, NULL);
+
+	bool end = false;
+	int i = 0;
+	while (!end)
+	{
+		if (!(SDL_GetTicks() % 100))
+		{
+			SDL_BlitSurface (gif [i%8], NULL, window, &p);
+			SDL_Flip (window);
+			SDL_BlitSurface (erase, NULL, window, &p);
+			i = (i + 1) % 8 + 8;
+		}
+		SDL_Event e;
+		SDL_PollEvent (&e);
+		if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
+			end = true;
+	}
+
+	for (int i = 0; i < 8; ++i)
+	{
+		SDL_FreeSurface (gif [i]);
+	}
+	SDL_FreeSurface (erase);
+}
+
+void east1 (SDL_Surface* window, SDLKey key)
+{
+	static int banana = 0;
+	switch (key)
+	{
+	case SDLK_a:
+		if (banana % 2)
+			++banana;
+		else
+			banana = 0;
+		break;
+	case SDLK_b:
+		if (banana == 0)
+			++banana;
+		else
+			banana = 0;
+		break;
+	case SDLK_n:
+		if (banana == 2 || banana == 4)
+			++banana;
+		else
+			banana = 0;
+		break;
+	default:
+		banana = 0;
+	}
+
+	if (banana == 6)
+	{
+		banane (window);
+		banana = 0;
+	}
 }

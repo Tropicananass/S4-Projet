@@ -18,7 +18,7 @@ void en_jeu (SDL_Surface* window)
 	Mix_PlayMusic(param->music, -1);
 	plateau_t plateau = init_plateau (window);
 	vec2 c = {0, 0};
-	bool end = 0;
+	bool end = false;
 	while (!end)
 	{
 		SDL_Event event;
@@ -31,7 +31,7 @@ void en_jeu (SDL_Surface* window)
 				break;
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_ESCAPE)
-					end = 1;
+					end = true;
 				else if (event.key.keysym.sym == SDLK_f)
 				{
 					window = fullscreen_window(window);
@@ -49,9 +49,16 @@ void en_jeu (SDL_Surface* window)
 				deplacement(plateau, &event, &c);
 				break;
 			case SDL_QUIT:
-				end = 1;
+				end = true;
 				break;
 		}
+	}
+	while (!end)
+	{
+		SDL_Event event;
+		SDL_WaitEvent (&event);
+		if (event.type == SDL_QUIT)
+			end = true;
 	}
 	free_plateau (plateau);
 	Mix_HaltMusic();

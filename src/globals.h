@@ -45,6 +45,7 @@ typedef struct s_menu {
 	vec2 pos;
 	vec2 cur;
 	SDL_Surface* window;
+	int c;
 }* menu_t;
 
 typedef struct s_plateau {
