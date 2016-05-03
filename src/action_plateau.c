@@ -6,7 +6,7 @@
 
 #include "affichage_plateau.h"
 #include "globals.h"
-#include "param.h"
+#include "sound.h"
 
 void selection (plateau_t p, curseur_t c)
 {
@@ -90,7 +90,7 @@ void deplacement (plateau_t p, SDL_Event* event, curseur_t* c)
 			if (0 <= hex.x && hex.x < NBSIDE && 0 <= hex.y && hex.y < NBSIDE)
 			{
 				Affiche_hexagon(p, c->x, c->y, PLAYER(p->player));
-				Mix_PlayMusic (param->click, 1);
+				play_clik();
 			}
 
 		}
@@ -130,7 +130,7 @@ void deplacement (plateau_t p, SDL_Event* event, curseur_t* c)
 			if (c->y < 0)
 				c->y = NBSIDE - 1;
 			Affiche_hexagon(p, c->x, c->y, PLAYER(p->player));
-			Mix_PlayMusic (param->click, 1);
+			play_clik();
 			SDL_Delay (100);
 		}
 		break;

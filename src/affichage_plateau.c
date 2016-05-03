@@ -33,10 +33,10 @@ void Quadrille_bis (plateau_t p)
 	SDL_Surface* hex1 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	SDL_Surface* hex2 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	Hexagon (hex, p->r, param->ex, param->in, DBORD, &(p->l));
-	Hexagon (hex1, p->r, param->ex, param->in, DBORD, &(p->l));
-	Circle (hex1, p->l, param->j2);
-	Hexagon (hex2, p->r, param->ex, param->in, DBORD, &(p->l));
-	Circle (hex2, p->l, param->j1);
+	Hexagon (hex1, p->r, param->ex, param->j1, DBORD, &(p->l));
+	//Circle (hex1, p->l, param->j2);
+	Hexagon (hex2, p->r, param->ex, param->j2, DBORD, &(p->l));
+	//Circle (hex2, p->l, param->j1);
 	for (int i = 0; i < NBSIDE; ++i)
 	{
 		int dx = p->marge_hori + i * (p->l + 1);
@@ -102,14 +102,18 @@ void Affiche_hexagon (plateau_t p, int x, int y, int state)
 		c = param->ex;
 		break;
 	}
-	Hexagon (hex, p->r, c, param->in, DBORD, &(p->l));
 	switch (p->grid[x * NBSIDE + y])
 	{
+	case NORMAL :
+		Hexagon (hex, p->r, c, param->in, DBORD, &(p->l));
+		break;
 	case J1:
-		Circle (hex, p->l, param->j1);
+		//Circle (hex, p->l, param->j1);
+		Hexagon (hex, p->r, c, param->j1, DBORD, &(p->l));
 		break;
 	case J2:
-		Circle (hex, p->l, param->j2);
+		//Circle (hex, p->l, param->j2);
+		Hexagon (hex, p->r, c, param->j2, DBORD, &(p->l));
 		break;
 	}
 	SDL_BlitSurface (hex, NULL, p->window, &position);

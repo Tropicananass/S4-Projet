@@ -10,7 +10,7 @@
 #include <math.h>
 #include "globals.h"
 #include "affichage_menu_principal.h"
-#include "param.h"
+#include "sound.h"
 
 void deplacement_menu (menu_t m, SDL_Event* event)
 {
@@ -79,7 +79,7 @@ void deplacement_menu (menu_t m, SDL_Event* event)
 			m->cur.x = hex.x;
 			m->cur.y = hex.y;
 			Affiche_entry(m, entries [hex.x][hex.y], POINTE);
-			Mix_PlayMusic (param->click, 1);
+			play_clik();
 		}
 		break;
 	}
@@ -121,7 +121,7 @@ void deplacement_menu (menu_t m, SDL_Event* event)
 			if (m->cur.y < 0)
 				m->cur.y = 2;
 			Affiche_entry(m, entries [m->cur.x][m->cur.y], POINTE);
-			Mix_PlayMusic (param->click, 1);
+			play_clik();
 			SDL_Delay (200);
 		}
 		break;
@@ -137,6 +137,7 @@ bool selection_menu (menu_t m, int* r)
 		return false;
 	case 10:
 		*r = M_JOUER;
+		play_gong();
 		return true;
 	case 11:
 		*r = M_HEX;

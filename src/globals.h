@@ -61,7 +61,10 @@ typedef struct s_param {
 	Uint32 in, ex, j1, j2, background;
 	SDL_Color rgb_in, rgb_ex, rgb_j1, rgb_j2, rgb_background;
 	TTF_Font* font;
-	Mix_Music* click;
+	Mix_Music* music;
+	unsigned char music_vol;
+	Mix_Chunk* click,* gong;
+	unsigned char chunk_vol;
 }* param_t;
 
 #endif /* _GLOBALS_H_ */

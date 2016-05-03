@@ -25,6 +25,7 @@ SDL_Surface* init_window ()
 
 	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1)
 		fprintf(stderr, "Mix init failed : %s\n", Mix_GetError());
+	Mix_AllocateChannels(3); //MIX_CHANNELS
 
 	const SDL_VideoInfo* info = SDL_GetVideoInfo();
 	int bpp;
@@ -129,4 +130,12 @@ void Reset_window (SDL_Surface* window)
 {
 	SDL_FillRect (window, NULL, param->background);
 	SDL_Flip (window);
+}
+
+void Free_window (SDL_Surface* window)
+{
+	SDL_FreeSurface (window);
+	SDL_Quit();
+	TTF_Quit();
+	Mix_CloseAudio();
 }

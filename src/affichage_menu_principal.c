@@ -7,7 +7,14 @@
 #include "param.h"
 #include "draw.h"
 
-#define NBOPTIONS 4
+#define NBOPTIONS 5
+
+#define LEFT 0
+#define RIGHT 1
+
+
+/* Menu */
+/* Interne */
 
 void Redim_entry (SDL_Surface** entry, int rayon, int l)
 {
@@ -81,7 +88,6 @@ void Case_menu (menu_t m, int rayon)
 }
 
 /* Externes */
-/* Menu */
 
 void Affiche_menu_principal (menu_t m)
 {
@@ -126,15 +132,15 @@ void Affiche_entry (menu_t m, char* entry, bool pointe)
 }
 
 /* Menu options */
+/* Interne */
 
-void Affiche_menu_options (SDL_Surface* window, int rayon, int l)
+void print_arrow (SDL_Surface* window, bool side, )
 {
-	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, rayon * 2, rayon * 2, window->format->BitsPerPixel, 0, 0, 0, 0);
-	Hexagon_single (hex, rayon, SDL_MapRGB(hex->format, 0, 0, 0), &l);
-	int dx = (window->w - 4 * (l + 1)) / 2 - rayon + l/2 + 1  + (l + 1);
-	SDL_Rect pos_hex = {dx + 2 * (l + 1) / 2, 2 * (1.5 * rayon)};
-	SDL_BlitSurface (hex, NULL, window, &pos_hex);
-	SDL_FreeSurface (hex);
+	SDL_Surface* arrow = SDL_CreateRGBSurface (SDL_HWSURFACE, 2*m->r, 2*m->r, window->format->BitsPerPixel, 0, 0, 0, 0);
+}
+
+SDL_Rect cadre_options (SDL_Surface* window, int l)
+{
 	SDL_Rect pos = {(window->w - 4 * (l + 1)) / 2 + (l + 1) / 2, 0, 2 * l + 1, window->h * 11. /12};
 	SDL_FillRect (window, &pos, param->ex);
 	pos.x += 10;
@@ -142,24 +148,25 @@ void Affiche_menu_options (SDL_Surface* window, int rayon, int l)
 	pos.w -= 20;
 	pos.h -= 20;
 	SDL_FillRect (window, &pos, param->in);
-	int size = pos.h * 2 / 3. / NBOPTIONS;
-	int margev = pos.h / 3. / (NBOPTIONS + 1);
+	return pos;
+}
 
-	char* entry_name [NBOPTIONS] = {"Musique : ", "Couleurs : ", "Taille : ", "Retour"};
-
-	pos.y += margev;
-	pos.w -= 40;
-	pos.x += 10;
-
+int create_options_surfaces (SDL_Surface* entry [NBOPTIONS])
+{
+	char* entry_name [NBOPTIONS] = {"Musique : ", "Son : ", "Couleurs : ", "Taille : ", "Retour"};
+	// Also modify NBOPTIONS
 	int maxw = 0;
-	SDL_Surface* entry [NBOPTIONS];
 	for (int i = 0; i < NBOPTIONS; ++i)
 	{
 		entry [i] = TTF_RenderUTF8_Blended (param->font, entry_name [i], param->rgb_ex);
 		if (maxw < entry[i]->w)
 			maxw = entry[i]->w;
 	}
+	return maxw;
+}
 
+SDL_Rect blit_redim_options (SDL_Surface* window, SDL_Surface* entry [NBOPTIONS], SDL_Rect pos, int maxw, int size, int margev)
+{
 	for (int i = 0; i < NBOPTIONS - 1; ++i)
 	{
 		SDL_Surface* entry_dim;
@@ -178,11 +185,16 @@ void Affiche_menu_options (SDL_Surface* window, int rayon, int l)
 
 		SDL_Rect pos_entry = {pos.x + (pos.w / 2 - entry_dim->w) / 2, pos.y + (size - entry_dim->h) / 2, 0, 0};
 		SDL_BlitSurface (entry_dim, NULL, window, &pos_entry);
-		putPixel(window, pos_entry.x + pos_entry.w, pos_entry.y, SDL_MapRGB (window->format, 0, 255, 0));
+
 		pos.y += size + margev;
 
 		SDL_FreeSurface (entry_dim);
 	}
+	return pos;
+}
+
+SDL_Rect blit_redim_retour (SDL_Surface* window, SDL_Surface* entry [NBOPTIONS], SDL_Rect pos, int maxw, int size)
+{
 	SDL_Surface* entry_dim;
 	if (pos.w / 2 < entry[NBOPTIONS-1]->w)
 	{
@@ -207,9 +219,37 @@ void Affiche_menu_options (SDL_Surface* window, int rayon, int l)
 	SDL_FillRect (window, &pos_cadre, param->in);
 	SDL_BlitSurface (entry_dim, NULL, window, &pos_entry);
 
-	pos.y += size + margev;
-
 	SDL_FreeSurface (entry_dim);
+
+	return pos;
+}
+
+/* Externe */
+
+void Affiche_menu_options (SDL_Surface* window, int rayon, int l)
+{
+	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, rayon * 2, rayon * 2, window->format->BitsPerPixel, 0, 0, 0, 0);
+	Hexagon_single (hex, rayon, SDL_MapRGB(hex->format, 0, 0, 0), &l);
+	int dx = (window->w - 4 * (l + 1)) / 2 - rayon + l/2 + 1  + (l + 1);
+	SDL_Rect pos_hex = {dx + 2 * (l + 1) / 2, 2 * (1.5 * rayon)};
+	SDL_BlitSurface (hex, NULL, window, &pos_hex);
+	SDL_FreeSurface (hex);
+
+	SDL_Rect pos = cadre_options (window, l);
+
+	int size = pos.h * 2 / 3. / NBOPTIONS;
+	int margev = pos.h / 3. / (NBOPTIONS + 1);
+
+	pos.y += margev;
+	pos.w -= 40;
+	pos.x += 10;
+
+	SDL_Surface* entry [NBOPTIONS];
+
+	int maxw = create_options_surfaces (entry);
+
+	pos = blit_redim_options (window, entry, pos, maxw, size, margev);
+	pos = blit_redim_retour (window, entry, pos, maxw, size);
 
 	for (int i = 0 ; i < window->h; ++i)
 		putPixel (window, pos.x + pos.w/2 + 10, i, SDL_MapRGB (window->format, 0, 255, 0));
@@ -219,39 +259,37 @@ void Affiche_menu_options (SDL_Surface* window, int rayon, int l)
 }
 
 /* Scroll */
+/* Interne */
 
-/*typedef struct s_scrolling {
-	SDL_Surface* msg [NBMESS];
-	SDL_Rect* pos;
-	SDL_Rect* dim;
-	int first_msg, nb_msg, nb_msg_max;
-}* scrolling_t;*/
-
-scrolling_t init_scroll (SDL_Surface* window)
+int Cadre_scroll (SDL_Surface* window)
 {
-	char* message [NBMESS] = {"Crédits : petite bite & gros chakal Corp.", "Breaking News : Le Soudan en manque de soudeurs", "lmqsdkmq"};
-	SDL_Color c [NBMESS] = {{170,10,107}, {60,255,1}, {0, 0, 0}};
-	scrolling_t s = malloc (sizeof (struct s_scrolling));
-
-	/* Bande de scroll */
 	int size = window->h / 24;
 	SDL_Rect bande = {0, window->h * 45. / 48, window->w, size};
 	SDL_FillRect (window, &bande, param->in);
 	SDL_Flip (window);
+	return size;
+}
 
-	/* Creation surfaces */
+void create_messages_surfaces (scrolling_t s, int size, int bpp)
+{
+	char* message [NBMESS] = {"Crédits : petite bite & gros chakal Corp.", "Breaking News : Le Soudan en manque de soudeurs", "lmqsdkmq", "There is nothing to see here ... BASTARD !"};
+	// Also modify NBMESS
+	SDL_Color c [NBMESS] = {{170,10,107}, {60,255,1}, {0, 0, 0}, {200, 180, 201}};
 	for (int i = 0; i < NBMESS; ++i)
 	{
 		assert (message [i] != NULL);
 		SDL_Surface* texte = TTF_RenderUTF8_Blended(param->font, message [i], c [i]);//, param->rgb_ex);
 		Redim_entry(&texte, size, texte->w);
-		s->msg [i] = SDL_CreateRGBSurface (SDL_HWSURFACE, texte->w + 1, texte->h, window->format->BitsPerPixel, 0, 0, 0, 0);
+		s->msg [i] = SDL_CreateRGBSurface (SDL_HWSURFACE, texte->w + 1, texte->h, bpp, 0, 0, 0, 0);
 		SDL_Rect temp = {0, 0, s->msg [i]->w, s->msg [i]->h};
 		SDL_FillRect (s->msg [i], &temp, param->in);
 		SDL_BlitSurface (texte, NULL, s->msg [i], &temp);
 		SDL_FreeSurface (texte);
 	}
+}
 
+void nb_msg_max (scrolling_t s, SDL_Surface* window)
+{
 	s->nb_msg_max = 1;
 	for (int i = 0; i < NBMESS; ++i)
 	{
@@ -266,8 +304,12 @@ scrolling_t init_scroll (SDL_Surface* window)
 			s->nb_msg_max = nb_msg;
 	}
 	++s->nb_msg_max;
-	s->nb_msg_max += s->nb_msg_max % NBMESS;
+	while (s->nb_msg_max % NBMESS != 0)
+		++s->nb_msg_max;
+}
 
+void init_pos_dim (scrolling_t s, SDL_Surface* window)
+{
 	s->pos = malloc (sizeof (SDL_Rect) * s->nb_msg_max);
 	s->dim = malloc (sizeof (SDL_Rect) * s->nb_msg_max);
 	for (int i = 0; i < s->nb_msg_max; ++i)
@@ -279,6 +321,22 @@ scrolling_t init_scroll (SDL_Surface* window)
 		s->dim [i].w = s->msg [i%NBMESS]->w;
 		s->dim [i].h = s->msg [i%NBMESS]->h;
 	}
+}
+
+/* Externe */
+
+scrolling_t init_scroll (SDL_Surface* window)
+{
+	scrolling_t s = malloc (sizeof (struct s_scrolling));
+
+	int size = Cadre_scroll (window);
+
+	/* Creation surfaces */
+	create_messages_surfaces (s, size, window->format->BitsPerPixel);
+
+	nb_msg_max (s, window);
+
+	init_pos_dim (s, window);
 
 	s->first_msg = 0;
 	s->nb_msg = 1;

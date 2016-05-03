@@ -31,7 +31,6 @@ int main(int argc, char **argv)
 		}
 	}
 	save_param(window);
-	SDL_FreeSurface (window);
-	SDL_Quit ();
+	Free_window (window);
 	return 0;
 }

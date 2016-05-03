@@ -12,6 +12,8 @@
 #include <SDL/SDL_ttf.h>
 #include <SDL/SDL_mixer.h>
 
+#include "sound.h"
+
 #define C_IN SDL_MapRGB (w->format, 50, 50, 50)
 #define C_EX SDL_MapRGB (w->format, 100, 100, 100)
 #define C_J1 SDL_MapRGB (w->format, 255, 0, 0)
@@ -81,7 +83,8 @@ void load_param (SDL_Surface* w)
 		}
 		fclose (param_file);
 	}
-	param->click = Mix_LoadMUS("ressources/Click03.wav");
+
+	Load_sound ();
 }
 
 void save_param (SDL_Surface* w)
@@ -96,7 +99,7 @@ void save_param (SDL_Surface* w)
 	for (int i = 0; i < 5 ; ++i)
 	{
 		fprintf (param_file, "%s = %d %d %d\n", field [i], rgb->r, rgb->g, rgb->b);
-		//printf ("%d - %d - %d\n", rgb->r, rgb->g, rgb->b);
+		//printf ("%d - %d - %d\n", rgb->r, rsgb->g, rgb->b);
 		rgb += 1;
 	}
 
@@ -119,5 +122,6 @@ void save_param (SDL_Surface* w)
 	}
 	free (param);
 	fclose (param_file);
-	Mix_FreeMusic(param->click);
+
+	Free_sound ();
 }

@@ -4,7 +4,7 @@
 #include <SDL/SDL.h>
 #include "globals.h"
 
-#define NBMESS 3
+#define NBMESS 4
 
 typedef struct s_scrolling {
 	SDL_Surface* msg [NBMESS];

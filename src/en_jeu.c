@@ -11,9 +11,11 @@
 #include "action_plateau.h"
 #include "affichage_plateau.h"
 #include "window.h"
+#include "param.h"
 
 void en_jeu (SDL_Surface* window)
 {
+	Mix_PlayMusic(param->music, -1);
 	plateau_t plateau = init_plateau (window);
 	vec2 c = {0, 0};
 	bool end = 0;
@@ -52,4 +54,6 @@ void en_jeu (SDL_Surface* window)
 		}
 	}
 	free_plateau (plateau);
+	Mix_HaltMusic();
+	Mix_RewindMusic();
 }
