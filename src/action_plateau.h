@@ -5,7 +5,7 @@
 
 #include "globals.h"
 
-void selection (plateau_t p, curseur_t c);
+int selection (plateau_t p, curseur_t c);
 
 void deplacement (plateau_t p, SDL_Event* event, curseur_t* c);
 

@@ -7,15 +7,18 @@
 #include "affichage_plateau.h"
 #include "globals.h"
 #include "sound.h"
+#include "testJeu.h"
 
-void selection (plateau_t p, curseur_t c)
+int selection (plateau_t p, curseur_t c)
 {
 	if (0 <= c.x && c.x < NBSIDE && 0 <= c.y && c.y < NBSIDE && p->grid [c.x * NBSIDE + c.y] == 0)
 	{
 		p->grid [c.x * NBSIDE + c.y] = PLAYER(p->player);
 		p->player = !p->player;
 		Affiche_hexagon(p, c.x, c.y, PLAYER(p->player));
+		return testGagne (p->grid, PLAYER(!p->player));
 	}
+	return 0;
 	/*for (int x = 0; x < NBSIDE; ++x)
 	{
 			for (int y = 0; y < NBSIDE; ++y)

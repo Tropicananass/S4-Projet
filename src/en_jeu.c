@@ -38,12 +38,12 @@ void en_jeu (SDL_Surface* window)
 					plateau = actu_plateau(plateau);
 				}
 				else if (event.key.keysym.sym == SDLK_RETURN)
-					selection (plateau, c);
+					end = selection (plateau, c);
 				else if (SDLK_UP <= event.key.keysym.sym && event.key.keysym.sym <= SDLK_LEFT)
 					deplacement(plateau, &event, &c);
 				break;
 			case SDL_MOUSEBUTTONUP:
-				selection (plateau, c);
+				end = selection (plateau, c);
 				break;
 			case SDL_MOUSEMOTION:
 				deplacement(plateau, &event, &c);

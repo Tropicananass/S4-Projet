@@ -134,10 +134,10 @@ void Affiche_entry (menu_t m, char* entry, bool pointe)
 /* Menu options */
 /* Interne */
 
-void print_arrow (SDL_Surface* window, bool side, )
+/*void print_arrow (SDL_Surface* window, bool side, )
 {
 	SDL_Surface* arrow = SDL_CreateRGBSurface (SDL_HWSURFACE, 2*m->r, 2*m->r, window->format->BitsPerPixel, 0, 0, 0, 0);
-}
+}*/
 
 SDL_Rect cadre_options (SDL_Surface* window, int l)
 {
