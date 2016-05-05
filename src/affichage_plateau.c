@@ -125,9 +125,13 @@ plateau_t init_plateau (SDL_Surface* window)
 {
 	plateau_t p = malloc (sizeof (struct s_plateau));
 	p->grid = malloc (sizeof (int) * NBSIDE * NBSIDE);
-	for (int x = 0; x < NBSIDE; ++x)
-		for (int y = 0; y < NBSIDE; ++y)
-			p->grid [x * NBSIDE + y] = 0;
+	p->hist = malloc (sizeof (int) * NBSIDE * NBSIDE);
+	for (int x = 0; x <= NBSIDE * NBSIDE; ++x)
+	{
+		p->grid [x] = 0;
+		p->hist [x] = 0;
+	}
+	p->nb_coups = 0;
 	p->window = window;
 	p->player = false;
 	define_rayon(p);

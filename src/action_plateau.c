@@ -14,18 +14,20 @@ int selection (plateau_t p, curseur_t c)
 	if (0 <= c.x && c.x < NBSIDE && 0 <= c.y && c.y < NBSIDE && p->grid [c.x * NBSIDE + c.y] == 0)
 	{
 		p->grid [c.x * NBSIDE + c.y] = PLAYER(p->player);
+		p->hist [p->nb_coups++] = c.x * NBSIDE + c.y;
 		p->player = !p->player;
 		Affiche_hexagon(p, c.x, c.y, PLAYER(p->player));
 		return testGagne (p->grid, PLAYER(!p->player));
 	}
-	return 0;
 	/*for (int x = 0; x < NBSIDE; ++x)
 	{
 			for (int y = 0; y < NBSIDE; ++y)
-				printf ("%d ", p->grid [y * NBSIDE + x]);
+				printf ("%d ", p->hist [y * NBSIDE + x]);
 			printf ("\n");
 	}
 	printf ("\n");*/
+
+	return 0;
 }
 
 void deplacement (plateau_t p, SDL_Event* event, curseur_t* c)

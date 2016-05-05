@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "affichage_menu_principal.h"
 #include "sound.h"
+#include "SDL/SDL_mixer.h"
 
 void deplacement_menu_mouse (menu_t m, const SDL_Event* event)
 {
@@ -125,6 +126,73 @@ void deplacement_menu_key (menu_t m, SDLKey key)
 	play_clik();
 }
 
+void boom (SDL_Surface* window)
+{
+	SDL_Surface* tmp = IMG_Load ("ressources/.east/Boom.png");
+	SDL_Surface* boom = rotozoomSurface(tmp, .0, fmin(window->h / (float)tmp->h, window->w / (float)tmp->w), 1);
+	SDL_Rect p = {(window->w - boom->w) / 2, (window->h - boom->h) / 2};
+	SDL_Surface* lum = SDL_CreateRGBSurface (SDL_HWSURFACE, window->w, window->h, window->format->BitsPerPixel, 0, 0, 0, 0);
+
+	SDL_FreeSurface(tmp);
+	tmp = SDL_CreateRGBSurface (SDL_HWSURFACE, window->w, window->h, window->format->BitsPerPixel, 0, 0, 0, 0);
+	SDL_BlitSurface (window, NULL, tmp, NULL);
+
+	Mix_Chunk* boomS = Mix_LoadWAV("ressources/.east/Boom.wav");
+	Mix_VolumeChunk (boomS, .1 * MIX_MAX_VOLUME);
+	if (boomS == NULL)
+		fprintf (stderr, "ressources/.east/Boom.mp3 : %s\n", SDL_GetError());
+	Mix_PlayChannel(0, boomS, 0);
+
+	bool end = false;
+
+	int i = 255;
+	while (i >= 0)
+	{
+		if (!(SDL_GetTicks() % 40))
+		{
+			SDL_FillRect (window, NULL, SDL_MapRGB (window->format, 0, 0, 0));
+
+			SDL_BlitSurface (boom, NULL, window, &p);
+
+			Uint32 white = SDL_MapRGB (window->format, 255, 255, 255);
+			SDL_FillRect (lum, NULL, white);
+			SDL_SetAlpha(lum, SDL_SRCALPHA, i);
+			SDL_BlitSurface (lum, NULL, window, NULL);
+			SDL_Flip (window);
+			i -= 4;
+		}
+	}
+
+	Uint32 black = SDL_MapRGB (window->format, 0, 0, 0);
+	SDL_FillRect (lum, NULL, black);
+	SDL_SetAlpha(lum, SDL_SRCALPHA, 1);
+
+	while (i < 256)
+	{
+		if (!(SDL_GetTicks() % 10))
+		{
+			SDL_BlitSurface (lum, NULL, window, NULL);
+			SDL_Flip (window);
+			i += 1;
+		}
+	}
+
+	while (!end)
+	{
+		SDL_Event e;
+		SDL_PollEvent (&e);
+		if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
+			end = true;
+	}
+
+	SDL_BlitSurface (tmp, NULL, window, NULL);
+
+	SDL_FreeSurface(tmp);
+	SDL_FreeSurface(boom);
+	SDL_FreeSurface(lum);
+	Mix_FreeChunk (boomS);
+}
+
 bool selection_menu (menu_t m, int* r)
 {
 	switch (10 * m->cur.x + m->cur.y)
@@ -140,6 +208,7 @@ bool selection_menu (menu_t m, int* r)
 		*r = M_HEX;
 		if (m->c == 15)
 		{
+			boom (m->window);
 			m->c = 0;
 		}
 		else

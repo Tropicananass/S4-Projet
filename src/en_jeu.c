@@ -41,6 +41,7 @@ void en_jeu (SDL_Surface* window)
 					end = selection (plateau, c);
 				else if (SDLK_UP <= event.key.keysym.sym && event.key.keysym.sym <= SDLK_LEFT)
 					deplacement(plateau, &event, &c);
+				east1 (window, event.key.keysym.sym);
 				break;
 			case SDL_MOUSEBUTTONUP:
 				end = selection (plateau, c);

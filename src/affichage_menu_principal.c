@@ -435,6 +435,9 @@ void banane (SDL_Surface* window)
 			end = true;
 	}
 
+	SDL_BlitSurface (erase, NULL, window, &p);
+	SDL_Flip (window);
+
 	for (int i = 0; i < 8; ++i)
 	{
 		SDL_FreeSurface (gif [i]);

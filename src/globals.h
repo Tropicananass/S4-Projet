@@ -55,6 +55,8 @@ typedef struct s_plateau {
 	int marge_hori;
 	SDL_Surface* window;
 	int *grid;
+	int *hist;
+	int nb_coups;
 	bool player;
 }* plateau_t;
 
