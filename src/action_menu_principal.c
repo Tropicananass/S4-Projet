@@ -199,7 +199,7 @@ bool selection_menu (menu_t m, int* r)
 	{
 	case 01:
 		*r = M_CHARGER;
-		return false;
+		return true;
 	case 10:
 		*r = M_JOUER;
 		play_gong();

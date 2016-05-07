@@ -9,7 +9,7 @@
 #define DWIDTH 800
 #define DHEIGHT 600
 
-#define NBSIDE 11
+#define NBSIDE param->size
 
 #define PI 3.14159265
 #define RAC3 1.73205080757
@@ -68,6 +68,9 @@ typedef struct s_param {
 	unsigned char music_vol;
 	Mix_Chunk* click,* gong;
 	unsigned char chunk_vol;
+	int size;
 }* param_t;
+
+param_t param;
 
 #endif /* _GLOBALS_H_ */

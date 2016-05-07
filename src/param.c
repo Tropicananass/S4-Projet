@@ -83,7 +83,7 @@ void load_param (SDL_Surface* w)
 		}
 		fclose (param_file);
 	}
-
+	param->size = 11;
 	Load_sound ();
 }
 

@@ -3,6 +3,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
 #include <SDL/SDL_rotozoom.h>
+#include <SDL/SDL_image.h>
 #include <assert.h>
 #include "param.h"
 #include "draw.h"
@@ -420,9 +421,12 @@ void banane (SDL_Surface* window)
 
 	bool end = false;
 	int i = 0;
+	int cur = 0;
+	char* passcode = "stopdancingstupidbanana";
+	bool pause = false;
 	while (!end)
 	{
-		if (!(SDL_GetTicks() % 100))
+		if (!(SDL_GetTicks() % 100) && !pause)
 		{
 			SDL_BlitSurface (gif [i%8], NULL, window, &p);
 			SDL_Flip (window);
@@ -430,9 +434,26 @@ void banane (SDL_Surface* window)
 			i = (i + 1) % 8 + 8;
 		}
 		SDL_Event e;
-		SDL_PollEvent (&e);
-		if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE))
-			end = true;
+		if (SDL_PollEvent (&e) && e.type == SDL_KEYDOWN)
+		{
+			switch (e.key.keysym.sym)
+			{
+			case SDLK_p:
+					pause = true;
+					break;
+			case SDLK_r:
+					pause = false;
+					break;
+			default:;
+			}
+			//Uint8* key = SDL_GetKeyState(NULL);
+			if (e.key.keysym.sym == passcode[cur])
+				++cur;
+			else
+				cur = 0;
+			if (cur == strlen (passcode))
+				end = true;
+		}
 	}
 
 	SDL_BlitSurface (erase, NULL, window, &p);

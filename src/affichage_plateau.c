@@ -2,16 +2,100 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <SDL/SDL_gfxPrimitives.h>
 
-#include "param.h"
 #include "draw.h"
 
 #define DBORD 4
 
 /* Internes */
 
+void Define_rayon (plateau_t p)
+{
+	int decal_droite = 40;
+	p->marge_vert = p->window->h / 6;
+	int width = p->window->w - 2 * decal_droite;
+	int height = p->window->h - 2 * p->marge_vert;
+	int r1 = (height - (NBSIDE - 1)) / (.5 + NBSIDE * 1.5);
+	int r2 = width / ((3 * NBSIDE - 1) * cos (PI/6));
+	if (r1 < r2)
+	{
+		p->r = r1 - r1%2;
+		p->marge_hori = p->window->w - decal_droite - 1.5 * (NBSIDE) * 2 * p->r * cos(PI/6);
+	}
+	else
+	{
+		p->r = r2 - r2%2;
+		p->marge_hori = p->window->w - decal_droite - 1.5 * (NBSIDE) * 2 * p->r * cos(PI/6);
+	}
+}
+
+void Bordures (plateau_t p)
+{
+	// (horizontales) player 2
+	int l = (cos (PI / 6) - cos (5 * PI / 6)) * p->r;
+	int dx = p->marge_hori+ p->r - l / 2;
+	Sint16 x1 [5] = {dx,
+					dx - l / 2,
+					dx,
+					dx + NBSIDE * (l + 1) - .25 * l,
+					dx + NBSIDE * (l + 1)};
+	Sint16 y1 [5] = {p->marge_vert - p->r / 2,
+					p->marge_vert,
+					p->marge_vert + p->r / 2,
+					p->marge_vert + p->r / 2,
+					p->marge_vert - p->r / 2};
+	filledPolygonRGBA(p->window, x1, y1, 5, param->rgb_j2.r, param->rgb_j2.g, param->rgb_j2.b, 255);
+	dx += (NBSIDE - 1) * (l + 1) / 2;
+	Sint16 x2 [5] = {dx + .25 * l,
+					dx + NBSIDE * (l + 1),
+					dx + NBSIDE * (l + 1) + l / 2,
+					dx + NBSIDE * (l + 1),
+					dx};
+	int dy = p->marge_vert + 1.5 * p->r * NBSIDE + .5 * p->r;
+	Sint16 y2 [5] = {dy - p->r / 2,
+					dy - p->r / 2,
+					dy,
+					dy + p->r / 2,
+					dy + p->r / 2};
+	filledPolygonRGBA(p->window, x2, y2, 5, param->rgb_j2.r, param->rgb_j2.g, param->rgb_j2.b, 255);
+	Sint16 x3 [5] = {x1 [1],
+					x1 [1] - l / 2,
+					x2 [4],
+					x2 [0],
+					x1 [2]};
+	Sint16 y3 [5] = {y1 [1],
+					y1 [2],
+					y2 [4],
+					y2 [0],
+					y1 [2]};
+	filledPolygonRGBA(p->window, x3, y3, 5, param->rgb_j1.r, param->rgb_j1.g, param->rgb_j1.b, 255);
+
+	/*x [0] = ;
+	x [1] = ;
+	x [2] = ;
+	x [3] = ;
+	x [4] = ;
+	y [0] = ;
+	y [1] = ;
+	y [2] = ;
+	y [3] = ;
+	y [4] = ;
+	pos.x += (NBSIDE - 1) * (l + 1) / 2.;
+	pos.y += 1.5 * p->r * NBSIDE + .5 * p->r;
+	SDL_FillRect (p->window, &pos, param->j2);
+
+	// (Verticales) player 1
+	filledPolygonRGBA(p->window, x, y, 4, 255, 0, 255, 255);*/
+
+	SDL_Flip (p->window);
+}
+
 void Quadrille (plateau_t p)
 {
+	Define_rayon(p);
+	Bordures (p);
+
 	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	Hexagon (hex, p->r, param->ex, param->in, DBORD, &(p->l));
 	for (int i = 0; i < NBSIDE; ++i)
@@ -29,6 +113,9 @@ void Quadrille (plateau_t p)
 
 void Quadrille_bis (plateau_t p)
 {
+	Define_rayon(p);
+	Bordures (p);
+
 	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	SDL_Surface* hex1 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	SDL_Surface* hex2 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
@@ -61,26 +148,6 @@ void Quadrille_bis (plateau_t p)
 	SDL_FreeSurface(hex1);
 	SDL_FreeSurface(hex2);
 	SDL_Flip (p->window);
-}
-
-void define_rayon (plateau_t p)
-{
-	int decal_droite = 40;
-	p->marge_vert = p->window->h / 6;
-	int width = p->window->w - 2 * decal_droite;
-	int height = p->window->h - 2 * p->marge_vert;
-	int r1 = (height - (NBSIDE - 1)) / (.5 + NBSIDE * 1.5);
-	int r2 = width / ((3 * NBSIDE - 1) * cos (PI/6));
-	if (r1 < r2)
-	{
-		p->r = r1 - r1%2;
-		p->marge_hori = p->window->w - decal_droite - 1.5 * (NBSIDE) * 2 * p->r * cos(PI/6);
-	}
-	else
-	{
-		p->r = r2 - r2%2;
-		p->marge_hori = p->window->w - decal_droite - 1.5 * (NBSIDE) * 2 * p->r * cos(PI/6);
-	}
 }
 
 /*Externes*/
@@ -126,22 +193,38 @@ plateau_t init_plateau (SDL_Surface* window)
 	plateau_t p = malloc (sizeof (struct s_plateau));
 	p->grid = malloc (sizeof (int) * NBSIDE * NBSIDE);
 	p->hist = malloc (sizeof (int) * NBSIDE * NBSIDE);
-	for (int x = 0; x <= NBSIDE * NBSIDE; ++x)
+	for (int x = 0; x < NBSIDE * NBSIDE; ++x)
 	{
 		p->grid [x] = 0;
-		p->hist [x] = 0;
+		p->hist [x] = -1;
 	}
 	p->nb_coups = 0;
 	p->window = window;
 	p->player = false;
-	define_rayon(p);
 	Quadrille (p);
+	return p;
+}
+
+plateau_t load_plateau (SDL_Surface* window, int* hist)
+{
+	plateau_t p = malloc (sizeof (struct s_plateau));
+	p->grid = malloc (sizeof (int) * NBSIDE * NBSIDE);
+	p->hist = hist;
+	p->player = false;
+	for (int i = 0; i < NBSIDE * NBSIDE; ++i)
+		p->grid [i] = 0;
+	for (p->nb_coups = 0; p->nb_coups < NBSIDE * NBSIDE && hist [p->nb_coups] != -1; ++p->nb_coups)
+	{
+		p->grid [hist [p->nb_coups]] = PLAYER(p->player);
+		p->player = !p->player;
+	}
+	p->window = window;
+	Quadrille_bis (p);
 	return p;
 }
 
 plateau_t actu_plateau (plateau_t p)
 {
-	define_rayon(p);
 	Quadrille_bis (p);
 	return p;
 }

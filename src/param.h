@@ -10,8 +10,6 @@
 
 #include "globals.h"
 
-param_t param;
-
 void load_param (SDL_Surface* w);
 void save_param (SDL_Surface* w);
 

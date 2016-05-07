@@ -8,6 +8,7 @@
 #include "draw.h"
 
 #include <math.h>
+#include <SDL/SDL_gfxPrimitives.h>
 
 #include "globals.h"
 

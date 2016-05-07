@@ -9,6 +9,7 @@
 #include "menu_principal.h"
 #include "en_jeu.h"
 #include "param.h"
+#include "sauvegarde.h"
 
 int main(int argc, char **argv)
 {
@@ -23,14 +24,25 @@ int main(int argc, char **argv)
 		switch (retour)
 		{
 		case M_JOUER:
-			en_jeu (window);
+			en_jeu (window, NULL);
 			Reset_window(window);
 			break;
+		case M_CHARGER:
+		{
+			int * hist;
+			int ia;
+			printf (" -- %d\n", chargement ("1", &hist, &ia));
+			en_jeu (window, hist);
+			Reset_window(window);
+			break;
+		}
 		case M_QUITTER:
 			end = 1;
 		}
 	}
+	//en_jeu (window);
 	save_param(window);
 	Free_window (window);
 	return 0;
+
 }

@@ -13,6 +13,8 @@ void Affiche_hexagon (plateau_t p, int x, int y, int state);
 
 plateau_t init_plateau (SDL_Surface* window);
 
+plateau_t load_plateau (SDL_Surface* window, int* hist);
+
 plateau_t actu_plateau (plateau_t p);
 
 void free_plateau (plateau_t p);

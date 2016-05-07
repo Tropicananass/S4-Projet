@@ -15,6 +15,8 @@ typedef struct s_scrolling {
 
 void Affiche_menu_principal (menu_t m);
 
+void Affiche_menu_options (SDL_Surface* window, int rayon, int l);
+
 void Affiche_entry (menu_t m, char* entry, bool pointe);
 
 scrolling_t init_scroll (SDL_Surface* window);

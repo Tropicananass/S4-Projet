@@ -11,9 +11,9 @@
 
 void Load_sound (void)
 {
-	param->music_vol = .25 * MIX_MAX_VOLUME;
+	param->music_vol = .5 * MIX_MAX_VOLUME;
 	param->music = Mix_LoadMUS ("ressources/theme.mp3");
-	Mix_VolumeMusic (param->music_vol);
+	Mix_VolumeMusic (param->music_vol);//param->music_vol);
 
 	param->chunk_vol = .25 * MIX_MAX_VOLUME;
 	printf ("%d\n", param->chunk_vol);

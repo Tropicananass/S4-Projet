@@ -12,11 +12,16 @@
 #include "affichage_plateau.h"
 #include "window.h"
 #include "param.h"
+#include "sauvegarde.h"
 
-void en_jeu (SDL_Surface* window)
+void en_jeu (SDL_Surface* window, int* hist)
 {
 	Mix_PlayMusic(param->music, -1);
-	plateau_t plateau = init_plateau (window);
+	plateau_t plateau;
+	if (hist == NULL)
+		plateau = init_plateau (window);
+	else
+		plateau = load_plateau (window, hist);
 	vec2 c = {0, 0};
 	bool end = false;
 	while (!end)
@@ -41,7 +46,12 @@ void en_jeu (SDL_Surface* window)
 					end = selection (plateau, c);
 				else if (SDLK_UP <= event.key.keysym.sym && event.key.keysym.sym <= SDLK_LEFT)
 					deplacement(plateau, &event, &c);
-				east1 (window, event.key.keysym.sym);
+				else if (event.key.keysym.sym == SDLK_a || event.key.keysym.sym == SDLK_b || event.key.keysym.sym == SDLK_n)
+					east1 (window, event.key.keysym.sym);
+				else if (event.key.keysym.sym == SDLK_s)
+				{
+					sauvegarde ("1", plateau->hist, 0);
+				}
 				break;
 			case SDL_MOUSEBUTTONUP:
 				end = selection (plateau, c);

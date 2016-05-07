@@ -40,6 +40,8 @@ int menu_options (SDL_Surface* window, scrolling_t s, menu_t m)
 {
 	Affiche_menu_options (window, m->r, m->l);
 	bool end = 0;
+	if (end)
+		end = 1;
 	/*while (!end)
 	{
 		SDL_Event event;
@@ -77,6 +79,7 @@ int menu_options (SDL_Surface* window, scrolling_t s, menu_t m)
 				break;
 		}
 	}*/
+	return 0;
 }
 
 int menu_principal (SDL_Surface* window)

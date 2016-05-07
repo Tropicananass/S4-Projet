@@ -10,6 +10,6 @@
 
 #include <SDL/SDL.h>
 
-void en_jeu (SDL_Surface* window);
+void en_jeu (SDL_Surface* window, int* hist);
 
 #endif /* _EN_JEU_H_ */
