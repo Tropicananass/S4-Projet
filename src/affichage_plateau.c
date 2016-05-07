@@ -32,7 +32,90 @@ void Define_rayon (plateau_t p)
 
 void Bordures (plateau_t p)
 {
-	// (horizontales) player 2
+	Sint16 x [NBSIDE * 4 + 2];
+	Sint16 y [NBSIDE * 4 + 2];
+
+	int dx = p->marge_hori + p->r - p->l / 2 - 2;
+	x [0] = dx - 2 * RAC3;
+	x [NBSIDE * 4 - 1] = dx;
+	y [0] = p->marge_vert + p->r / 2 - 6;
+	y [1] = p->marge_vert - 6;
+	y [NBSIDE * 2] = y [1] + 4;
+	y [NBSIDE * 2 + 1] = y [0] + 4;
+	for (int i = 1; i < NBSIDE * 2; ++i)
+	{
+		x [i] = dx + i * (p->l + 1) / 2;
+		x [NBSIDE * 4 - i - 1] = x [i];
+		y [i] = y [i%2];
+		y [NBSIDE * 2 + i] = y [NBSIDE * 2 + i%2];
+	}
+	y [0] += 2;
+
+	filledPolygonRGBA(p->window, x, y, NBSIDE * 4, param->rgb_j2.r, param->rgb_j2.g, param->rgb_j2.b, 255);
+
+	dx = p->marge_hori + p->r - p->l / 2 - 2 + (NBSIDE - 1) * (p->l + 1) / 2;
+	x [0] = dx;
+	x [NBSIDE * 4 + 1] = dx - 2 * RAC3;
+	y [0] = p->marge_vert + NBSIDE * 1.5 *  p->r + 1;
+	y [1] = p->marge_vert + NBSIDE * 1.5 *  p->r + p->r / 2 + 1;
+	y [NBSIDE * 2 + 1] = y [0] + 4;
+	y [NBSIDE * 2 + 2] = y [1] + 4;
+	for (int i = 1; i < NBSIDE * 2 + 1; ++i)
+	{
+		x [i] = dx + i * (p->l + 1) / 2;
+		x [NBSIDE * 4 + 2 - i - 1] = x [i];
+		y [i] = y [i%2];
+		y [NBSIDE * 2 + 1 + i] = y [NBSIDE * 2 + 1 + i%2];
+	}
+	y [NBSIDE * 4 + 1] -= 2;
+	x [NBSIDE * 2 + 1] += 2 * RAC3;
+	y [NBSIDE * 2 + 1] -= 2;
+
+	filledPolygonRGBA(p->window, x, y, NBSIDE * 4 + 2, param->rgb_j2.r, param->rgb_j2.g, param->rgb_j2.b, 255);
+
+	dx = p->marge_hori + p->r - p->l / 2 - 7;
+	int dy = p->marge_vert + p->r / 2 + 2;
+	for (int i = 0; i < NBSIDE * 2; ++i)
+	{
+		x [i] = dx + (int)(i / 2) * ((p->l + 1) / 2);
+		x [NBSIDE * 4 - i - 1] = x[i] + 2 * RAC3;
+		y [i] = dy + i * p->r / 2 + (int)((i + 1) / 2) * (p->r / 2);
+		y [NBSIDE * 2 + i] = dy + (NBSIDE * 2 - 1 - i) * p->r / 2 + (int)((NBSIDE * 2 - i) / 2) * (p->r / 2) - 2;//y [i];
+	}
+	y [0] -= 2 * RAC3 + 1;
+	y [NBSIDE * 4 - 1] -= 1;
+
+	for (int i = 0; i < NBSIDE * 2; ++i)
+	{
+	printf ("%d - %d  -  %d - %d\n", x [i], x [NBSIDE * 2 + i], y [i], y [NBSIDE * 2 + i]);
+	}
+
+	filledPolygonRGBA(p->window, x, y, NBSIDE * 4, param->rgb_j1.r, param->rgb_j1.g, param->rgb_j1.b, 255);
+
+	dx = p->marge_hori + p->r - p->l / 2 + NBSIDE * (p->l + 1) - p->l / 2 - 1;
+	dy = p->marge_vert - 1;
+	for (int i = 0; i < NBSIDE * 2 + 1; ++i)
+	{
+		x [i] = dx + (int)((i + 1) / 2) * ((p->l + 1) / 2);
+		x [NBSIDE * 4 + 1 - i] = x[i] + 2 * RAC3;
+		y [i] = dy + i * p->r / 2 + (int)(i / 2) * (p->r / 2);
+		y [NBSIDE * 2 + 1 + i] = dy + (NBSIDE * 2 - i) * p->r / 2 + (int)((NBSIDE * 2 - i) / 2) * (p->r / 2) - 2;//y [i];
+	}
+	x [NBSIDE * 4 + 1] -= 2 * RAC3 - 1;
+	y [NBSIDE * 4 + 1] -= 3;
+	y [0] -= 1;
+	y [NBSIDE * 2 + 1] += 2 * RAC3 + 2;
+	y [NBSIDE * 2] += 1;
+
+	filledPolygonRGBA(p->window, x, y, NBSIDE * 4 + 2, param->rgb_j1.r, param->rgb_j1.g, param->rgb_j1.b, 255);
+
+
+	/*for (int i = 0; i < NBSIDE * 2 + 1; ++i)
+	{
+	printf ("%d - %d  -  %d - %d\n", x [i], x [NBSIDE * 2 + 1 + i], y [i], y [NBSIDE * 2 + 1 + i]);
+	}*/
+
+	/*// (horizontales) player 2
 	int l = (cos (PI / 6) - cos (5 * PI / 6)) * p->r;
 	int dx = p->marge_hori+ p->r - l / 2;
 	Sint16 x1 [5] = {dx,
@@ -69,7 +152,7 @@ void Bordures (plateau_t p)
 					y2 [4],
 					y2 [0],
 					y1 [2]};
-	filledPolygonRGBA(p->window, x3, y3, 5, param->rgb_j1.r, param->rgb_j1.g, param->rgb_j1.b, 255);
+	filledPolygonRGBA(p->window, x3, y3, 5, param->rgb_j1.r, param->rgb_j1.g, param->rgb_j1.b, 255);*/
 
 	/*x [0] = ;
 	x [1] = ;
@@ -94,7 +177,6 @@ void Bordures (plateau_t p)
 void Quadrille (plateau_t p)
 {
 	Define_rayon(p);
-	Bordures (p);
 
 	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	Hexagon (hex, p->r, param->ex, param->in, DBORD, &(p->l));
@@ -108,13 +190,15 @@ void Quadrille (plateau_t p)
 		}
 	}
 	SDL_FreeSurface(hex);
+
+	Bordures (p);
+
 	SDL_Flip (p->window);
 }
 
 void Quadrille_bis (plateau_t p)
 {
 	Define_rayon(p);
-	Bordures (p);
 
 	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	SDL_Surface* hex1 = SDL_CreateRGBSurface (SDL_HWSURFACE, 2 * p->r, 2 * p->r, p->window->format->BitsPerPixel, 0, 0, 0, 0);
@@ -147,6 +231,9 @@ void Quadrille_bis (plateau_t p)
 	SDL_FreeSurface(hex);
 	SDL_FreeSurface(hex1);
 	SDL_FreeSurface(hex2);
+
+	Bordures (p);
+
 	SDL_Flip (p->window);
 }
 

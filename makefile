@@ -3,19 +3,19 @@ CFLAGS=-Wall -g -std=c99 -c
 #-lm `sdl-config --cflags --libs` -lSDL_ttf
 LDFLAGS=-std=c99 -lm `sdl-config --cflags --libs` -lSDL_ttf -lSDL_gfx -lSDL_mixer -lSDL_image
 EXEC=bin/hex
-SRC=src/hex.c src/affichage_plateau.c src/action_plateau.c src/affichage_menu_principal.c src/window.c src/param.c src/en_jeu.c src/menu_principal.c src/draw.c src/action_menu_principal.c src/sound.c src/testJeu.c src/sauvegarde.c
+SRCDIR=src
+OBJDIR=obj
+SRC=hex.c affichage_plateau.c action_plateau.c affichage_menu_principal.c window.c param.c en_jeu.c menu_principal.c draw.c action_menu_principal.c sound.c testJeu.c sauvegarde.c
 #$(wildcard src/*.c)
 OBJ=$(SRC:.c=.o)
 
 all: $(EXEC)
 
-src/%.o: src/%.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) -o $@ $< $(CFLAGS)
 	
-$(EXEC): $(OBJ)
+$(EXEC): $(addprefix $(OBJDIR)/, $(OBJ))
 	$(CC) -o $@ $^ $(LDFLAGS)
 	
-	mv src/*.o obj/
-	
 clean:
-	rm -rf src/*.o $(EXEC)
+	rm -rf src/*.o obj/*.o $(EXEC)
