@@ -12,22 +12,27 @@
 
 void Define_rayon (plateau_t p)
 {
-	int decal_droite = 40;
-	p->marge_vert = p->window->h / 6;
-	int width = p->window->w - 2 * decal_droite;
+	p->marge_hori = p->window->w / 96;
+	p->marge_vert = p->window->h / 12;
+	int width = p->window->w - 2 * p->marge_hori;
 	int height = p->window->h - 2 * p->marge_vert;
-	int r1 = (height - (NBSIDE - 1)) / (.5 + NBSIDE * 1.5);
-	int r2 = width / ((3 * NBSIDE - 1) * cos (PI/6));
+	int r1 = height / (.5 + NBSIDE * 1.5);
+	int r2 = width / ((NBSIDE + NBSIDE / 2.) * RAC3);
 	if (r1 < r2)
 	{
 		p->r = r1 - r1%2;
-		p->marge_hori = p->window->w - decal_droite - 1.5 * (NBSIDE) * 2 * p->r * cos(PI/6);
+		int l = p->r * RAC3;
+		p->marge_hori = (p->window->w - NBSIDE * l - NBSIDE * l / 2) / 2;
+		p->marge_vert = (p->window->h - 1.5 * (NBSIDE) * p->r - p->r / 2) / 2 - p->window->h / 24;
 	}
 	else
 	{
 		p->r = r2 - r2%2;
-		p->marge_hori = p->window->w - decal_droite - 1.5 * (NBSIDE) * 2 * p->r * cos(PI/6);
+		int l = p->r * RAC3;
+		p->marge_hori = (p->window->w - NBSIDE * l - NBSIDE * l / 2) / 2;
+		p->marge_vert = (p->window->h - 1.5 * (NBSIDE) * p->r - p->r / 2) / 2;
 	}
+	printf ("%d - %d - %d\n", p->r, r1, r2);
 }
 
 void Bordures (plateau_t p)
@@ -85,11 +90,6 @@ void Bordures (plateau_t p)
 	y [0] -= 2 * RAC3 + 1;
 	y [NBSIDE * 4 - 1] -= 1;
 
-	for (int i = 0; i < NBSIDE * 2; ++i)
-	{
-	printf ("%d - %d  -  %d - %d\n", x [i], x [NBSIDE * 2 + i], y [i], y [NBSIDE * 2 + i]);
-	}
-
 	filledPolygonRGBA(p->window, x, y, NBSIDE * 4, param->rgb_j1.r, param->rgb_j1.g, param->rgb_j1.b, 255);
 
 	dx = p->marge_hori + p->r - p->l / 2 + NBSIDE * (p->l + 1) - p->l / 2 - 1;
@@ -108,68 +108,6 @@ void Bordures (plateau_t p)
 	y [NBSIDE * 2] += 1;
 
 	filledPolygonRGBA(p->window, x, y, NBSIDE * 4 + 2, param->rgb_j1.r, param->rgb_j1.g, param->rgb_j1.b, 255);
-
-
-	/*for (int i = 0; i < NBSIDE * 2 + 1; ++i)
-	{
-	printf ("%d - %d  -  %d - %d\n", x [i], x [NBSIDE * 2 + 1 + i], y [i], y [NBSIDE * 2 + 1 + i]);
-	}*/
-
-	/*// (horizontales) player 2
-	int l = (cos (PI / 6) - cos (5 * PI / 6)) * p->r;
-	int dx = p->marge_hori+ p->r - l / 2;
-	Sint16 x1 [5] = {dx,
-					dx - l / 2,
-					dx,
-					dx + NBSIDE * (l + 1) - .25 * l,
-					dx + NBSIDE * (l + 1)};
-	Sint16 y1 [5] = {p->marge_vert - p->r / 2,
-					p->marge_vert,
-					p->marge_vert + p->r / 2,
-					p->marge_vert + p->r / 2,
-					p->marge_vert - p->r / 2};
-	filledPolygonRGBA(p->window, x1, y1, 5, param->rgb_j2.r, param->rgb_j2.g, param->rgb_j2.b, 255);
-	dx += (NBSIDE - 1) * (l + 1) / 2;
-	Sint16 x2 [5] = {dx + .25 * l,
-					dx + NBSIDE * (l + 1),
-					dx + NBSIDE * (l + 1) + l / 2,
-					dx + NBSIDE * (l + 1),
-					dx};
-	int dy = p->marge_vert + 1.5 * p->r * NBSIDE + .5 * p->r;
-	Sint16 y2 [5] = {dy - p->r / 2,
-					dy - p->r / 2,
-					dy,
-					dy + p->r / 2,
-					dy + p->r / 2};
-	filledPolygonRGBA(p->window, x2, y2, 5, param->rgb_j2.r, param->rgb_j2.g, param->rgb_j2.b, 255);
-	Sint16 x3 [5] = {x1 [1],
-					x1 [1] - l / 2,
-					x2 [4],
-					x2 [0],
-					x1 [2]};
-	Sint16 y3 [5] = {y1 [1],
-					y1 [2],
-					y2 [4],
-					y2 [0],
-					y1 [2]};
-	filledPolygonRGBA(p->window, x3, y3, 5, param->rgb_j1.r, param->rgb_j1.g, param->rgb_j1.b, 255);*/
-
-	/*x [0] = ;
-	x [1] = ;
-	x [2] = ;
-	x [3] = ;
-	x [4] = ;
-	y [0] = ;
-	y [1] = ;
-	y [2] = ;
-	y [3] = ;
-	y [4] = ;
-	pos.x += (NBSIDE - 1) * (l + 1) / 2.;
-	pos.y += 1.5 * p->r * NBSIDE + .5 * p->r;
-	SDL_FillRect (p->window, &pos, param->j2);
-
-	// (Verticales) player 1
-	filledPolygonRGBA(p->window, x, y, 4, 255, 0, 255, 255);*/
 
 	SDL_Flip (p->window);
 }

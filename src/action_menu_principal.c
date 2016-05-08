@@ -9,11 +9,12 @@
 
 #include <math.h>
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_mixer.h>
+#include <SDL/SDL_rotozoom.h>
+
 #include "globals.h"
 #include "affichage_menu_principal.h"
 #include "sound.h"
-#include "SDL/SDL_mixer.h"
-
 void deplacement_menu_mouse (menu_t m, const SDL_Event* event)
 {
 	char* entries [3][3] =  {{"", "Charger", ""}, {"Jouer", "HEX", "Quitter"}, {"", "Options", ""}};

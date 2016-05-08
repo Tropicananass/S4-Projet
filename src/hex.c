@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 			end = 1;
 		}
 	}
-	//en_jeu (window);
+	//en_jeu (window, NULL);
 	save_param(window);
 	Free_window (window);
 	return 0;

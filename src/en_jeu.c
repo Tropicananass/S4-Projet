@@ -13,6 +13,7 @@
 #include "window.h"
 #include "param.h"
 #include "sauvegarde.h"
+#include "scrolling.h"
 
 void en_jeu (SDL_Surface* window, int* hist)
 {
@@ -24,10 +25,11 @@ void en_jeu (SDL_Surface* window, int* hist)
 		plateau = load_plateau (window, hist);
 	vec2 c = {0, 0};
 	bool end = false;
+	scrolling_t s = init_dynamic_scroll (window, plateau);
 	while (!end)
 	{
-		SDL_Event event;
-		SDL_WaitEvent (&event);
+		SDL_Event event = dynamic_scroll (window, s, plateau);
+		//SDL_WaitEvent (&event);
 		switch (event.type)
 		{
 			case SDL_VIDEORESIZE:

@@ -92,21 +92,17 @@ int chargement(char *nom , int **tab, int *IA)
 		return ERROR_OPENFILE;
 	a=fscanf(f_chargement, "%d", IA);
 
-	printf ("1\n");
 	if(!a || *IA>2 || *IA<0){
 		return ERROR_IA;
 	}
-	printf ("2\n");
 	fscanf(f_chargement, "%d", &taille);
-	if(taille<1){
+	if(taille<1 || taille > 25){
 		return ERROR_SIZE;
 	}
 
-	printf ("3\n");
 	t=malloc(sizeof(int)*taille*taille);
 	a=1, i = -1;
 
-	printf ("4\n");
 	while(a>0){
 		i++;
 		a=fscanf(f_chargement, "%d" , &t[i]);

@@ -4,6 +4,7 @@
 #include "affichage_menu_principal.h"
 #include "globals.h"
 #include "window.h"
+#include "scrolling.h"
 
 menu_t init_menu_principal (SDL_Surface* window)
 {
@@ -31,8 +32,11 @@ void free_menu (menu_t m)
 
 scrolling_t resize_scroll (SDL_Surface* w, scrolling_t s)
 {
+	char** msg = s->msgstr;
+	SDL_Color* c = s->c;
+	int nb = s->nb_surf;
 	free_scroll (s);
-	s = init_scroll (w);
+	s = init_scroll (w, msg, c, nb);
 	return s;
 }
 
@@ -88,7 +92,9 @@ int menu_principal (SDL_Surface* window)
 	Affiche_menu_principal(m);
 	int retour;
 	bool end = 0;
-	scrolling_t scroll = init_scroll (window);
+	char* message [] = {"Crédits : petite bite & gros chakal Corp.", "Breaking News : Le Soudan en manque de soudeurs", "lmqsdkmq", "There is nothing to see here ... BASTARD !"};
+	SDL_Color c [] = {{170,10,107}, {60,255,1}, {0, 0, 0}, {200, 180, 201}};
+	scrolling_t scroll = init_scroll (window, message, c, 4);
 	while (!end)
 	{
 		SDL_Event event;
