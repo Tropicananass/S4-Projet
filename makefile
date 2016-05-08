@@ -12,6 +12,7 @@ OBJ=$(SRC:.c=.o)
 all: $(EXEC)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
+	if [ ! -d "obj" ]; then mkdir "obj"; fi
 	$(CC) -o $@ $< $(CFLAGS)
 	
 $(EXEC): $(addprefix $(OBJDIR)/, $(OBJ))
