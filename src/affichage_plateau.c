@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <SDL/SDL_gfxPrimitives.h>
+#include <SDL/SDL_rotozoom.h>
 
 #include "draw.h"
 
@@ -32,7 +33,6 @@ void Define_rayon (plateau_t p)
 		p->marge_hori = (p->window->w - NBSIDE * l - NBSIDE * l / 2) / 2;
 		p->marge_vert = (p->window->h - 1.5 * (NBSIDE) * p->r - p->r / 2) / 2;
 	}
-	printf ("%d - %d - %d\n", p->r, r1, r2);
 }
 
 void Bordures (plateau_t p)
@@ -131,6 +131,8 @@ void Quadrille (plateau_t p)
 
 	Bordures (p);
 
+	Menu_button(p, 0);
+
 	SDL_Flip (p->window);
 }
 
@@ -172,10 +174,45 @@ void Quadrille_bis (plateau_t p)
 
 	Bordures (p);
 
+	Menu_button(p, 0);
+
 	SDL_Flip (p->window);
 }
 
 /*Externes*/
+
+void Menu_button (plateau_t p, bool pointe)
+{
+	SDL_Rect pos = {p->marge_hori + (p->window->w - 2 * p->marge_hori) / 48, p->marge_vert + p->r * 1.5 * (NBSIDE - 2) + p->r / 2, .h = (p->window->h - 2 * p->marge_vert) / 9};
+
+	SDL_Surface* tmp;
+	SDL_Color c;
+	if (pointe)
+		if (PLAYER(p->player) == J1)
+			c = param->rgb_j1;
+		else
+			c = param->rgb_j2;
+	else
+		c = param->rgb_ex;
+	tmp = TTF_RenderUTF8_Blended (param->font, "Menu", c);
+	SDL_Surface* menu = rotozoomSurface(tmp, .0, (pos.h - 8) / (float)tmp->h, 1);
+	SDL_FreeSurface (tmp);
+	pos. w = menu->w + 16;
+	SDL_FillRect (p->window, &pos, SDL_MapRGB (p->window->format, c.r, c.g, c. b));
+	pos.w -= 8;
+	pos.h -= 8;
+	pos.x += 4;
+	pos.y += 4;
+	SDL_FillRect (p->window, &pos, param->in);
+	p->menu.x = pos.x;
+	p->menu.y = pos.y;
+	p->menu.w = pos.w;
+	p->menu.h = pos.h;
+	SDL_Rect postxt = {pos.x, pos.y};
+	postxt.x = pos.x + (pos.w - menu->w) / 2;
+	SDL_BlitSurface (menu, NULL, p->window, &postxt);
+	SDL_Flip(p->window);
+}
 
 void Affiche_hexagon (plateau_t p, int x, int y, int state)
 {

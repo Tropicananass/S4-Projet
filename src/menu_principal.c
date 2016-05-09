@@ -1,160 +1,255 @@
 #include "menu_principal.h"
 
-#include "action_menu_principal.h"
-#include "affichage_menu_principal.h"
+#include <math.h>
+
+#include "action_menu.h"
+#include "affichage_menu.h"
+#include "menu.h"
 #include "globals.h"
 #include "window.h"
 #include "scrolling.h"
+#include "sound.h"
+#include "sauvegarde.h"
+#include "sub_menu.h"
 
-menu_t init_menu_principal (SDL_Surface* window)
+int menu_taille (SDL_Surface* window, scrolling_t scroll)
 {
-	menu_t m = malloc (sizeof (struct s_menu));
-	m->window = window;
-	m->cur.x = 1;
-	m->cur.y = 1;
-	m->c = 0;
-	return m;
-}
-
-menu_t init_menu_options (SDL_Surface* window)
-{
-	menu_t m = malloc (sizeof (struct s_menu));
-	m->window = window;
-	m->cur.x = 1;
-	m->cur.y = 1;
-	return m;
-}
-
-void free_menu (menu_t m)
-{
-	free (m);
-}
-
-scrolling_t resize_scroll (SDL_Surface* w, scrolling_t s)
-{
-	char** msg = s->msgstr;
-	SDL_Color* c = s->c;
-	int nb = s->nb_surf;
-	free_scroll (s);
-	s = init_scroll (w, msg, c, nb);
-	return s;
-}
-
-int menu_options (SDL_Surface* window, scrolling_t s, menu_t m)
-{
-	Affiche_menu_options (window, m->r, m->l);
-	bool end = 0;
-	if (end)
-		end = 1;
-	/*while (!end)
-	{
-		SDL_Event event;
-		event = scroll_msg (window, s);
-		switch (event.type)
-		{
-			case SDL_VIDEORESIZE:
-				resize_window(window, &event);
-				Affiche_menu_principal(m);
-				s = resize_scroll(window, s);
-				break;
-			case SDL_KEYDOWN:
-				if (event.key.keysym.sym == SDLK_ESCAPE)
-					end = 1;
-				break;
-				else if (event.key.keysym.sym == SDLK_f)
-				{
-					window = fullscreen_window(window);
-					Affiche_menu_principal(m);
-					scroll = resize_scroll(window, scroll);
-				}
-				else if (event.key.keysym.sym == SDLK_RETURN)
-					end = selection_menu (m, &retour);
-				else if (SDLK_UP <= event.key.keysym.sym && event.key.keysym.sym <= SDLK_LEFT)
-					deplacement_menu (m, &event);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				end = selection_menu (m, &retour);
-				break;
-			case SDL_MOUSEMOTION:
-				deplacement_menu (m, &event);
-				break;
-			case SDL_QUIT:
-				end = 1;
-				break;
-		}
-	}*/
-	return 0;
-}
-
-int menu_principal (SDL_Surface* window)
-{
-	menu_t m = init_menu_principal (window);
-	Affiche_menu_principal(m);
+	char* entries [5] = {"<", "TAILLE", "", "Retour", ">"};
+	entries [2] = malloc (sizeof (char)* 8);
+	sprintf (entries [2], "%dx%d", param->size, param->size);
+	menu_t m = init_menu (window, entries);
+	Affiche_menu(m);
 	int retour;
-	bool end = 0;
-	char* message [] = {"Crédits : petite bite & gros chakal Corp.", "Breaking News : Le Soudan en manque de soudeurs", "lmqsdkmq", "There is nothing to see here ... BASTARD !"};
-	SDL_Color c [] = {{170,10,107}, {60,255,1}, {0, 0, 0}, {200, 180, 201}};
-	scrolling_t scroll = init_scroll (window, message, c, 4);
+	bool end = false;
+
 	while (!end)
 	{
 		SDL_Event event;
 		event = scroll_msg (window, scroll);
-		switch (event.type)
+		if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
 		{
-			case SDL_VIDEORESIZE:
-				resize_window(window, &event);
-				Affiche_menu_principal(m);
-				scroll = resize_scroll(window, scroll);
-				break;
-			case SDL_KEYDOWN:
-				if (event.key.keysym.sym == SDLK_ESCAPE)
-				{
-					retour = M_QUITTER;
-					end = 1;
-				}
-				else if (event.key.keysym.sym == SDLK_f)
-				{
-					window = fullscreen_window(window);
-					Affiche_menu_principal(m);
-					scroll = resize_scroll(window, scroll);
-				}
-				else if (event.key.keysym.sym == SDLK_RETURN)
-					end = selection_menu (m, &retour);
-				else if (SDLK_UP <= event.key.keysym.sym && event.key.keysym.sym <= SDLK_LEFT)
-					deplacement_menu_key (m, event.key.keysym.sym);
-				else
-					east1 (window, event.key.keysym.sym);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				end = selection_menu (m, &retour);
-				break;
-			case SDL_MOUSEMOTION:
-				deplacement_menu_mouse (m, &event);
-				break;
-			case SDL_QUIT:
-				retour = M_QUITTER;
-				end = 1;
-				break;
-			default:
+			retour = M_DOWN;
+		}
+		else
+			retour = evenement_menu(window, m, event, 0);
+		if (event.type == SDL_VIDEORESIZE || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f))
+			scroll = resize_scroll(window, scroll);
+		switch (retour)
+		{
+		case M_UP:
+			break;
+		case M_LEFT :
+			if (param->size > 1)
 			{
-				Uint8 *keyboard = SDL_GetKeyState(NULL);
-				if (keyboard [SDLK_UP])
-					deplacement_menu_key (m, SDLK_UP);
-				if (keyboard [SDLK_DOWN])
-					deplacement_menu_key (m, SDLK_DOWN);
-				if (keyboard [SDLK_LEFT])
-					deplacement_menu_key (m, SDLK_LEFT);
-				if (keyboard [SDLK_RIGHT])
-					deplacement_menu_key (m, SDLK_RIGHT);
+				--param->size;
+				sprintf (entries [2], "%dx%d", param->size, param->size);
+				vec2 c = m->cur;
+				m->cur.x = 1;
+				m->cur.x = 1;
+				Affiche_entry (m, 0);
+				m->cur = c;
 			}
-
-		}
-		if (retour == M_OPTIONS)
+			break;
+		case M_RIGHT :
 		{
-			menu_options (window, scroll, m);
-			retour = -1;
+			if (param->size < SIZE_MAX)
+			{
+				++param->size;
+				sprintf (entries [2], "%dx%d", param->size, param->size);
+				vec2 c = m->cur;
+				m->cur.x = 1;
+				m->cur.x = 1;
+				Affiche_entry (m, 0);
+				m->cur = c;
+			}
+			break;
 		}
+		case M_DOWN :
+			end = true;
+			break;
+		case M_MID :
+			break;
+		}
+	}
+	free (entries [2]);
+	free_menu(m);
+	Mix_HaltMusic();
+	return retour;
+}
 
+int menu_options (SDL_Surface* window, scrolling_t scroll)
+{
+	char* entries [5] = {"Music", "Taille", "OPTIONS", "Retour", " Son "};
+	menu_t m = init_menu (window, entries);
+	Affiche_menu(m);
+	int retour;
+	bool end = false;
+
+	while (!end)
+	{
+		SDL_Event event;
+		event = scroll_msg (window, scroll);
+		if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
+		{
+			retour = M_DOWN;
+		}
+		else
+			retour = evenement_menu(window, m, event, 0);
+		if (event.type == SDL_VIDEORESIZE || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f))
+			scroll = resize_scroll(window, scroll);
+		switch (retour)
+		{
+		case M_UP:
+			menu_taille (window, scroll);
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
+			break;
+		case M_LEFT :
+			menu_music (window, scroll);
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
+			break;
+		case M_RIGHT :
+			menu_son (window, scroll);
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
+			break;
+		case M_DOWN :
+			end = true;
+			break;
+		case M_MID :
+			break;
+		}
+	}
+	free_menu(m);
+	return retour;
+}
+
+int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
+{
+	char* entries [5] = {"<", "CHARGER", "", "Retour", ">"};
+	entries [2] = malloc (sizeof (char)* 9);
+	char** liste;
+	int nb_sav = listeSauvegarde(&liste);
+	int cur = 0;
+	sprintf (entries [2], "%s", liste[cur]);
+	menu_t m = init_menu (window, entries);
+	Affiche_menu(m);
+	int retour;
+	bool end = false;
+
+	while (!end)
+	{
+		SDL_Event event;
+		event = scroll_msg (window, scroll);
+		if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
+		{
+			retour = M_DOWN;
+		}
+		else
+			retour = evenement_menu(window, m, event, 0);
+		if (event.type == SDL_VIDEORESIZE || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f))
+			scroll = resize_scroll(window, scroll);
+		switch (retour)
+		{
+		case M_UP:
+			*file = malloc (sizeof (char) * (strlen(entries[2]) + 1));
+			strcpy (*file, entries [2]);
+			end = true;
+			retour = M_UP;
+			break;
+		case M_LEFT :
+		{
+
+			if (!cur)
+				cur = nb_sav - 1;
+			else
+				--cur;
+			sprintf (entries [2], "%s", liste[cur]);
+			vec2 c = m->cur;
+			m->cur.x = 1;
+			m->cur.x = 1;
+			Affiche_entry (m, 0);
+			m->cur = c;
+			break;
+		}
+		case M_RIGHT :
+		{
+			cur = (cur + 1) % nb_sav;
+			sprintf (entries [2], "%s", liste[cur]);
+			vec2 c = m->cur;
+			m->cur.x = 1;
+			m->cur.x = 1;
+			Affiche_entry (m, 0);
+			m->cur = c;
+			break;
+		}
+		case M_DOWN :
+			end = true;
+			break;
+		case M_MID :
+			break;
+		}
+	}
+	free (entries [2]);
+	free_liste (liste, nb_sav);
+	free_menu(m);
+	return retour;
+}
+
+int menu_principal (SDL_Surface* window, char** file)
+{
+	char* entries [5] = {"Charger", "Jouer", "HEX", "Quitter", "Options"};
+	menu_t m = init_menu (window, entries);
+	Affiche_menu(m);
+	int retour;
+	bool end = false;
+	char* message [] = {"Crédits : petite bite & gros chakal Corp.", "Breaking News : Le Soudan en manque de soudeurs", "lmqsdkmq", "There is nothing to see here ... BASTARD !"};
+	SDL_Color c [] = {{170,10,107}, {60,255,1}, {0, 0, 0}, {200, 180, 201}};
+	scrolling_t scroll = init_scroll (window, message, c, 4);
+
+	while (!end)
+	{
+		SDL_Event event;
+		event = scroll_msg (window, scroll);
+		if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
+		{
+			retour = M_DOWN;
+		}
+		else
+			retour = evenement_menu(window, m, event, 0);
+		switch (retour)
+		{
+		case M_UP:
+			end = true;
+			break;
+		case M_LEFT :
+			if (menu_charger (window, scroll, file) == M_UP)
+			{
+				end = true;
+				retour = M_LEFT;
+			}
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
+			break;
+		case M_RIGHT :
+			menu_options (window, scroll);
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
+			break;
+		case M_DOWN :
+			end = true;
+			break;
+		case M_MID :
+			break;
+		}
+		if (event.type == SDL_VIDEORESIZE || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f))
+			scroll = resize_scroll(window, scroll);
 	}
 	free_menu(m);
 	free_scroll (scroll);

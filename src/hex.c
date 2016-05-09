@@ -4,6 +4,8 @@
  ********************************************************/
 
 #include <SDL/SDL.h>
+#include <stdlib.h>
+#include <time.h>
 #include "window.h"
 #include "globals.h"
 #include "menu_principal.h"
@@ -13,30 +15,33 @@
 
 int main(int argc, char **argv)
 {
+	srand(time(0));
 	SDL_Surface* window = init_window();
 	load_param(window);
 	Reset_window (window);
 	bool end = 0;
+	char* file;
 	while (!end)
 	{
-		int retour = menu_principal(window);
-		Reset_window(window);
-		switch (retour)
+		switch (menu_principal(window, &file))
 		{
-		case M_JOUER:
+		case M_UP:
 			en_jeu (window, NULL);
 			Reset_window(window);
 			break;
-		case M_CHARGER:
+		case M_LEFT:
 		{
 			int * hist;
 			int ia;
-			printf (" -- %d\n", chargement ("1", &hist, &ia));
-			en_jeu (window, hist);
-			Reset_window(window);
+			int err = chargement (file, &hist, &ia);
+			if (err != OK)
+				printf ("Erreur chargement : %d\n", err);
+			else
+				en_jeu (window, hist);
+				Reset_window(window);
 			break;
 		}
-		case M_QUITTER:
+		case M_DOWN:
 			end = 1;
 		}
 	}

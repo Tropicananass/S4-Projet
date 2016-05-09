@@ -130,6 +130,16 @@ void free_scroll (scrolling_t s)
 	free (s);
 }
 
+scrolling_t resize_scroll (SDL_Surface* w, scrolling_t s)
+{
+	char** msg = s->msgstr;
+	SDL_Color* c = s->c;
+	int nb = s->nb_surf;
+	free_scroll (s);
+	s = init_scroll (w, msg, c, nb);
+	return s;
+}
+
 SDL_Event scroll_msg (SDL_Surface* window, scrolling_t s)
 {
 	int t0 = SDL_GetTicks();
@@ -236,4 +246,46 @@ SDL_Event dynamic_scroll (SDL_Surface* window, d_scrolling_t d, plateau_t p)
 	d->s->msg [0] = j2;
 
 	return e;
+}
+
+d_scrolling_t resize_dynamic_scroll (SDL_Surface* window, d_scrolling_t d, plateau_t p)
+{
+	free_scroll (d->s);
+	d->s = malloc (sizeof (struct s_scrolling));
+	char* msg [2] = {"Au tour du Joueur 2", "Au tour du Joueur 1"};
+	SDL_Color c [2] = {param->rgb_j2, param->rgb_j1};
+
+	int size = Cadre_scroll (window);
+	d->s->nb_surf = 2;
+	d->s->c = c;
+	d->s->msgstr = msg;
+	create_messages_surfaces (d->s, size, window->format->BitsPerPixel);
+
+	d->id = p->nb_coups%2;
+	d->precedent = NULL;
+
+	nb_msg_max (d->s, window);
+
+	SDL_Surface* j1 = d->s->msg [1];
+
+	char new [50];
+	sprintf (new,  "Dernier coup : joueur %d en %2d - %2d  ", PLAYER(!p->player), p->hist[p->nb_coups - 1] / NBSIDE + 1, p->hist[p->nb_coups - 1] % NBSIDE + 1);
+	if (PLAYER(!p->player) == J1)
+		d->s->msg[1] = create_one_surface (new, param->rgb_j1, d->s->msg[0]->h, window->format->BitsPerPixel);
+	else
+		d->s->msg[1] = create_one_surface (new, param->rgb_j2, d->s->msg[0]->h, window->format->BitsPerPixel);
+
+
+	init_pos_dim (d->s, window);
+
+	d->s->first_msg = 0;
+	d->s->nb_msg = 1;
+	if (d->precedent != NULL && d->precedent != d->s->msg [1])
+				SDL_FreeSurface (d->precedent);
+	d->precedent = d->s->msg [1];
+	d->s->msg [1] = j1;
+	d->s->nb_surf = 2;
+
+	return d;
+
 }

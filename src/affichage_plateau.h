@@ -7,9 +7,9 @@
 
 #define COLOR 32
 
-void putPixel(SDL_Surface * surface, Uint16 x, Uint16 y, Uint32 color);
-
 void Affiche_hexagon (plateau_t p, int x, int y, int state);
+
+void Menu_button (plateau_t p, bool pointe);
 
 plateau_t init_plateau (SDL_Surface* window);
 

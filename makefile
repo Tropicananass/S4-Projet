@@ -5,7 +5,7 @@ LDFLAGS=-std=c99 -lm `sdl-config --cflags --libs` -lSDL_ttf -lSDL_gfx -lSDL_mixe
 EXEC=bin/hex
 SRCDIR=src
 OBJDIR=obj
-SRC=hex.c affichage_plateau.c action_plateau.c affichage_menu_principal.c window.c param.c en_jeu.c menu_principal.c draw.c action_menu_principal.c sound.c testJeu.c sauvegarde.c scrolling.c
+SRC=hex.c affichage_plateau.c action_plateau.c affichage_menu.c window.c param.c en_jeu.c menu_principal.c draw.c action_menu.c sound.c testJeu.c sauvegarde.c scrolling.c menu.c menu_en_jeu.c sub_menu.c
 #$(wildcard src/*.c)
 OBJ=$(SRC:.c=.o)
 

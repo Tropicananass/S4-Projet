@@ -6,10 +6,13 @@
 #include <SDL/SDL_mixer.h>
 #include <stdbool.h>
 
+#define OK 0
+
 #define DWIDTH 800
 #define DHEIGHT 600
 
 #define NBSIDE param->size
+#define MAXSIZE 20
 
 #define PI 3.14159265
 #define RAC3 1.73205080757
@@ -20,11 +23,12 @@
 #define NORMAL 0
 #define POINTE 1
 
-#define M_JOUER 0
-#define M_CHARGER 1
-#define M_OPTIONS 2
-#define M_QUITTER 3
-#define M_HEX 5
+#define M_UP 0
+#define M_LEFT 1
+#define M_RIGHT 2
+#define M_DOWN 3
+#define M_MID 5
+#define M_NOT 6
 
 typedef struct s_vec3{
 	int x;
@@ -40,6 +44,8 @@ typedef struct s_vec2{
 typedef struct s_vec2 curseur_t;
 
 typedef struct s_menu {
+	char** entries;
+	int nb_entries;
 	int l;
 	int r;
 	vec2 pos;
@@ -58,6 +64,8 @@ typedef struct s_plateau {
 	int *hist;
 	int nb_coups;
 	bool player;
+	int ia;
+	SDL_Rect menu;
 }* plateau_t;
 
 typedef struct s_param {

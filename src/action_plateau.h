@@ -7,6 +7,8 @@
 
 int selection (plateau_t p, curseur_t c);
 
-void deplacement (plateau_t p, SDL_Event* event, curseur_t* c);
+void deplacement_mouse (plateau_t p, SDL_MouseMotionEvent motion, curseur_t* c);
+
+void deplacement_key (plateau_t p, SDLKey key, curseur_t* c);
 
 #endif /* _ACTION_PLATEAU_H_ */

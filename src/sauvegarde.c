@@ -21,7 +21,7 @@ int listeSauvegarde(char*** nomSave){
 	while((d=readdir(rep))!=NULL)
 	{
 		ext=strlen(d->d_name);
-		if (ext>3 && !strcmp(&d->d_name[ext-4], ".sav")){
+		if (ext>3 && !strcmp(&d->d_name[ext-4], ".sav") && ext<13){
 			nbSave++;
 		}
 	}
@@ -32,13 +32,13 @@ int listeSauvegarde(char*** nomSave){
 	while((d=readdir(rep))!=NULL)
 	{
 		ext=strlen(d->d_name);
-		if (ext>3 && !strcmp(&d->d_name[ext-4], ".sav")){
+		if (ext>3 && !strcmp(&d->d_name[ext-4], ".sav") && ext<13){
 			tmp[i]=malloc(sizeof(char)*(ext-2));
 			for(j=0;j<ext-4;j++){
 				tmp[i][j]= d->d_name[j];
 			}
 			
-			tmp[i][ext-3]=0;
+			tmp[i][ext-4]=0;
 			i++;
 		}
 	}
@@ -46,6 +46,13 @@ int listeSauvegarde(char*** nomSave){
 	*nomSave = tmp;
 	return nbSave;
 	
+}
+
+void free_liste (char** liste, int n)
+{
+	for (int i = 0; i < n; ++i)
+		free (liste[i]);
+	free (liste);
 }
 
 // Renvoi 0 si la sauvegarde a eu lieu et 1 si il y a eu problème
@@ -96,7 +103,7 @@ int chargement(char *nom , int **tab, int *IA)
 		return ERROR_IA;
 	}
 	fscanf(f_chargement, "%d", &taille);
-	if(taille<1 || taille > 25){
+	if(taille<1 || taille > SIZE_MAX){
 		return ERROR_SIZE;
 	}
 
@@ -112,8 +119,8 @@ int chargement(char *nom , int **tab, int *IA)
 	if(i!=taille*taille){
 		return ERROR_NB_VALUE;
 	}
-	param->size=taille;
-	*tab=t;
+	param->size = taille;
+	*tab = t;
 	return 0;
 }
 

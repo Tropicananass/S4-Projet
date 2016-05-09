@@ -33,10 +33,14 @@ scrolling_t init_scroll (SDL_Surface* window, char** msg, SDL_Color* c, int nb_m
 
 void free_scroll (scrolling_t s);
 
+scrolling_t resize_scroll (SDL_Surface* w, scrolling_t s);
+
 SDL_Event scroll_msg (SDL_Surface* window, scrolling_t s);
 
 d_scrolling_t init_dynamic_scroll (SDL_Surface* window, plateau_t p);
 
 SDL_Event dynamic_scroll (SDL_Surface* window, d_scrolling_t d, plateau_t p);
+
+d_scrolling_t resize_dynamic_scroll (SDL_Surface* window, d_scrolling_t d, plateau_t p);
 
 #endif /* _SCROLLING_H_ */
