@@ -47,10 +47,8 @@ SDL_Surface* Incruste (SDL_Surface* hex, char* title, int l, TTF_Font* font, SDL
 
 
 
-void Case_menu (menu_t m, int rayon)
+void Case_menu_5 (menu_t m, int rayon)
 {
-	SDL_Color fontColor = {100, 100, 100};
-
 	int l;
 	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2*rayon, 2*rayon, m->window->format->BitsPerPixel, 0, 0, 0, 0);
 	Hexagon (hex, rayon, param->ex, param->in, 10, &l);
@@ -58,7 +56,7 @@ void Case_menu (menu_t m, int rayon)
 	/* Charger */
 	int dx =  xorig - rayon + l/2 + 1;
 	SDL_Rect position = {dx + 1 * (l + 1) / 2, 0 + 1 * (1.5 * rayon)};
-	SDL_Surface* hex_entry = Incruste(hex, m->entries [0], l, param->font, fontColor);
+	SDL_Surface* hex_entry = Incruste(hex, m->entries [0], l, param->font, param->rgb_ex);
 	SDL_BlitSurface (hex_entry, NULL, m->window, &position);
 	SDL_FreeSurface (hex_entry);
 
@@ -70,7 +68,7 @@ void Case_menu (menu_t m, int rayon)
 	/* Option */
 	dx = xorig + 2 * (l + 1) - rayon + l/2 + 1;
 	position.x = dx + 1 * (l + 1) / 2;
-	hex_entry = Incruste(hex, m->entries [4], l, param->font, fontColor);
+	hex_entry = Incruste(hex, m->entries [4], l, param->font, param->rgb_ex);
 	SDL_BlitSurface (hex_entry, NULL, m->window, &position);
 	SDL_FreeSurface (hex_entry);
 
@@ -79,10 +77,35 @@ void Case_menu (menu_t m, int rayon)
 	{
 		position.x = dx + j * (l + 1) / 2;
 		position.y = 0 + j * (1.5 * rayon);
-		hex_entry = Incruste(hex, m->entries [j+1], l, param->font, fontColor);
+		hex_entry = Incruste(hex, m->entries [j+1], l, param->font, param->rgb_ex);
 		SDL_BlitSurface (hex_entry, NULL, m->window, &position);
 		SDL_FreeSurface (hex_entry);
 	}
+
+	SDL_FreeSurface(hex);
+}
+
+void Case_menu_7 (menu_t m, int rayon)
+{
+	Case_menu_5 (m, rayon);
+
+	int l;
+	SDL_Surface* hex = SDL_CreateRGBSurface (SDL_HWSURFACE, 2*rayon, 2*rayon, m->window->format->BitsPerPixel, 0, 0, 0, 0);
+	Hexagon (hex, rayon, param->ex, param->in, 10, &l);
+
+	SDL_Rect pos;
+
+	pos.x = (m->window->w - 4 * (l + 1)) / 2 + 2 * (l + 1) - rayon + l/2 + 1;
+	pos.y = 0;
+	SDL_Surface* hex_entry = Incruste(hex, m->entries [5], l, param->font, param->rgb_ex);
+	SDL_BlitSurface (hex_entry, NULL, m->window, &pos);
+	SDL_FreeSurface (hex_entry);
+
+	pos.x = (m->window->w - 4 * (l + 1)) / 2 + 1 * (l + 1) - rayon + l/2 + 1;
+	pos.y = 2 * (1.5 * rayon);
+	hex_entry = Incruste(hex, m->entries [6], l, param->font, param->rgb_ex);
+	SDL_BlitSurface (hex_entry, NULL, m->window, &pos);
+	SDL_FreeSurface (hex_entry);
 
 	SDL_FreeSurface(hex);
 }
@@ -102,7 +125,10 @@ void Affiche_menu (menu_t m)
 	else
 		r1 = r2 - r2 % 2;
 
-	Case_menu (m, r1);
+	if (m->nb_entries == 7)
+		Case_menu_7 (m, r1);
+	else
+	Case_menu_5 (m, r1);
 	Affiche_entry(m, POINTE);
 	SDL_Flip (m->window);
 }
@@ -129,6 +155,9 @@ void Affiche_entry (menu_t m, bool pointe)
 	case 01:
 		hex_entry = Incruste (hex, m->entries [0], m->l, param->font, c);
 		break;
+	case 02:
+		hex_entry = Incruste (hex, m->entries [6], m->l, param->font, c);
+		break;
 	case 10:
 		hex_entry = Incruste (hex, m->entries [1], m->l, param->font, c);
 		break;
@@ -137,6 +166,9 @@ void Affiche_entry (menu_t m, bool pointe)
 		break;
 	case 12:
 		hex_entry = Incruste (hex, m->entries [3], m->l, param->font, c);
+		break;
+	case 20:
+		hex_entry = Incruste (hex, m->entries [5], m->l, param->font, c);
 		break;
 	case 21:
 		hex_entry = Incruste (hex, m->entries [4], m->l, param->font, c);

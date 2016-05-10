@@ -11,11 +11,9 @@
 
 void Load_sound (void)
 {
-	param->music_vol = .5 * MIX_MAX_VOLUME;
 	param->music = Mix_LoadMUS ("ressources/theme.mp3");
 	Mix_VolumeMusic (param->music_vol);//param->music_vol);
 
-	param->chunk_vol = .5 * MIX_MAX_VOLUME;
 	param->click = Mix_LoadWAV("ressources/Click.wav");
 	Mix_VolumeChunk (param->click, param->chunk_vol);
 

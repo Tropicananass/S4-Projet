@@ -31,6 +31,53 @@ bool d_menu_mouse (plateau_t p, SDL_MouseMotionEvent motion)
 	return false;
 }
 
+int menu_hist (plateau_t p)
+{
+	char* entries [5] = {"<", "", "", "Retour", ">"};
+	menu_t m = init_menu (p->window, entries);
+	Affiche_menu(m);
+	int retour;
+	bool end = false;
+
+	while (!end)
+	{
+		SDL_Event event;
+		SDL_WaitEvent (&event);
+		if (event.type == SDL_QUIT)
+			exit (0);
+		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+			retour = M_DOWN;
+		else
+			retour = evenement_menu(p->window, m, event, 0);
+		switch (retour)
+		{
+		case M_UP:
+			menu_music (p->window, NULL);
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
+			break;
+		case M_LEFT :
+			end = true;
+			break;
+		case M_RIGHT :
+			menu_son (p->window, NULL);
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
+			break;
+		case M_DOWN :
+			end = true;
+			break;
+		case M_MID :
+			end = true;
+			break;
+		}
+	}
+	free_menu(m);
+	return retour;
+}
+
 int menu_save (plateau_t p)
 {
 	char* entries [5] = {"<", "Save", "", "Retour", ">"};
@@ -166,17 +213,9 @@ int menu_save (plateau_t p)
 	return retour;
 }
 
-int menu_en_jeu (plateau_t p)
+int menu_en_jeu_part2 (plateau_t p)
 {
-	SDL_Surface* save = SDL_CreateRGBSurface (SDL_HWSURFACE, p->window->w, p->window->h, p->window->format->BitsPerPixel, 0, 0, 0, 0);
-	SDL_BlitSurface (p->window, NULL, save, NULL);
-	SDL_Surface* ombre = SDL_CreateRGBSurface (SDL_HWSURFACE, p->window->w, p->window->h, p->window->format->BitsPerPixel, 0, 0, 0, 0);
-	SDL_FillRect (ombre, NULL, SDL_MapRGB (p->window->format, 0, 0, 0));
-	SDL_SetAlpha(ombre, SDL_SRCALPHA, 200);
-	SDL_BlitSurface (ombre, NULL, p->window, NULL);
-	SDL_FreeSurface (ombre);
-
-	char* entries [5] = {"Music", "Save", "HEX", "Quitter", " Son "};
+	char* entries [5] = {"<", "Music", "HEX", "Quitter", " Son "};
 	menu_t m = init_menu (p->window, entries);
 	Affiche_menu(m);
 	int retour;
@@ -186,25 +225,22 @@ int menu_en_jeu (plateau_t p)
 	{
 		SDL_Event event;
 		SDL_WaitEvent (&event);
-		if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
-		{
+		if (event.type == SDL_QUIT)
+			exit (0);
+		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
 			retour = M_DOWN;
-		}
 		else
 			retour = evenement_menu(p->window, m, event, 0);
 		switch (retour)
 		{
 		case M_UP:
-			menu_save (p);
+			menu_music (p->window, NULL);
 			m->cur.x = 1;
 			m->cur.y = 1;
 			Affiche_menu(m);
 			break;
 		case M_LEFT :
-			menu_music (p->window, NULL);
-			m->cur.x = 1;
-			m->cur.y = 1;
-			Affiche_menu(m);
+			end = true;
 			break;
 		case M_RIGHT :
 			menu_son (p->window, NULL);
@@ -221,7 +257,89 @@ int menu_en_jeu (plateau_t p)
 		}
 	}
 	free_menu(m);
+	return retour;
+}
+
+int menu_en_jeu_part1 (plateau_t p)
+{
+	SDL_Surface* save = SDL_CreateRGBSurface (SDL_HWSURFACE, p->window->w, p->window->h, p->window->format->BitsPerPixel, 0, 0, 0, 0);
+	SDL_BlitSurface (p->window, NULL, save, NULL);
+	vec2 resize = {p->window->w, p->window->h};
+	char* entries [7] = {"Hist", "Save", "HEX", "Quitter", ">", "sdoul", "7"};
+	menu_t m = init_menu (p->window, entries);
+	m->nb_entries = 7;
+	Affiche_menu(m);
+	int retour;
+	bool end = false;
+
+	while (!end)
+	{
+		SDL_Event event;
+		SDL_WaitEvent (&event);
+		if (event.type == SDL_QUIT)
+			exit (0);
+		if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+			retour = M_DOWN;
+		else
+			retour = evenement_menu(p->window, m, event, 0);
+		if (retour != M_NOT)
+		{
+			if (resize.x == p->window->w && resize.y == p->window->h)
+				SDL_BlitSurface (save, NULL, p->window, NULL);
+			else
+				SDL_FillRect (p->window, NULL, SDL_MapRGB(p->window->format, 0, 0, 0));
+		}
+		switch (retour)
+		{
+		case M_UP:
+			menu_save (p);
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
+			break;
+		case M_LEFT :
+			break;
+		case M_RIGHT :
+			end = true;
+			break;
+		case M_DOWN :
+			end = true;
+			break;
+		case M_MID :
+			end = true;
+			break;
+		}
+	}
+	free_menu(m);
+	return retour;
+}
+
+int menu_en_jeu (plateau_t p)
+{
+
+	SDL_Surface* save = SDL_CreateRGBSurface (SDL_HWSURFACE, p->window->w, p->window->h, p->window->format->BitsPerPixel, 0, 0, 0, 0);
+	SDL_BlitSurface (p->window, NULL, save, NULL);
+	SDL_Surface* ombre = SDL_CreateRGBSurface (SDL_HWSURFACE, p->window->w, p->window->h, p->window->format->BitsPerPixel, 0, 0, 0, 0);
+	SDL_FillRect (ombre, NULL, SDL_MapRGB (p->window->format, 0, 0, 0));
+	SDL_SetAlpha (ombre, SDL_SRCALPHA, 175);
+	SDL_BlitSurface (ombre, NULL, p->window, NULL);
+	SDL_FreeSurface (ombre);
+
+	int retour = M_LEFT;
+	do
+	{
+		if (retour == M_LEFT)
+			retour = menu_en_jeu_part1(p);
+		else if (retour == M_RIGHT)
+			retour = menu_en_jeu_part2(p);
+	} while (retour != M_MID && retour != M_DOWN);
+
 	SDL_BlitSurface (save, NULL, p->window, NULL);
 	SDL_FreeSurface (save);
+	SDL_Event e;
+	do
+	{
+		SDL_WaitEvent (&e);
+	} while (e.type != SDL_MOUSEBUTTONUP && e.type != SDL_KEYUP);
 	return retour;
 }

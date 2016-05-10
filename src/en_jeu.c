@@ -7,16 +7,20 @@
 
 #include "en_jeu.h"
 
+#include <SDL/SDL_rotozoom.h>
 #include <stdlib.h>
 
 #include "globals.h"
 #include "action_plateau.h"
 #include "affichage_plateau.h"
+#include "affichage_menu.h"
 #include "window.h"
 #include "param.h"
 #include "sauvegarde.h"
 #include "scrolling.h"
 #include "menu_en_jeu.h"
+#include "menu.h"
+#include "testJeu.h"
 
 bool fake_IA (plateau_t p, bool* end)
 {
@@ -69,12 +73,16 @@ void en_jeu (SDL_Surface* window, int* hist)
 				{
 					window = fullscreen_window(window);
 					plateau = actu_plateau(plateau);
+					d = resize_dynamic_scroll (window, d, plateau);
 				}
 				else if (event.key.keysym.sym == SDLK_RETURN)
 					if (button)
 					{
 						if (menu_en_jeu(plateau) == M_DOWN)
 							end = true;
+						Reset_window(window);
+						plateau = actu_plateau(plateau);
+						d = resize_dynamic_scroll (window, d, plateau);
 					}
 					else
 						gagne = selection (plateau, c);
@@ -82,18 +90,15 @@ void en_jeu (SDL_Surface* window, int* hist)
 					deplacement_key(plateau, event.key.keysym.sym, &c);
 				else if (event.key.keysym.sym == SDLK_a || event.key.keysym.sym == SDLK_b || event.key.keysym.sym == SDLK_n)
 					east1 (window, event.key.keysym.sym);
-				else if (event.key.keysym.sym == SDLK_m)
-				{
-					char* entries [5] = {"Joueur-IA1", "2 Joueurs", "Type", "Joueur-IA2", "IA1-IA2"};
-					menu_t type = init_menu (window, entries);
-					Affiche_menu (type);
-				}
 				break;
 			case SDL_MOUSEBUTTONUP:
 				if (button)
 				{
 					if (menu_en_jeu(plateau) == M_DOWN)
 						end = true;
+					Reset_window(window);
+					plateau = actu_plateau(plateau);
+					d = resize_dynamic_scroll (window, d, plateau);
 				}
 				else
 					gagne = selection (plateau, c);
@@ -109,8 +114,7 @@ void en_jeu (SDL_Surface* window, int* hist)
 				break;
 			}
 			case SDL_QUIT:
-				end = true;
-				break;
+				exit (0);
 			default:
 			{
 				Uint8 *keyboard = SDL_GetKeyState(NULL);

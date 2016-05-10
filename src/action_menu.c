@@ -68,7 +68,8 @@ void deplacement_menu_mouse (menu_t m, const SDL_Event* event)
 		}
 	}
 
-	if (0 > hex.x || hex.x >= 3 || 0 > hex.y || hex.y >= 3  || (hex.x != 1 && hex.y != 1))
+	if (0 > hex.x || hex.x >= 3 || 0 > hex.y || hex.y >= 3  || (m->nb_entries == 5 && (hex.x != 1 && hex.y != 1))
+															|| (m->nb_entries == 7 && ((hex.x == 0 && hex.y == 0) || (hex.x == 2 && hex.y == 2))))
 	{
 		hex.x = 1;
 		hex.y = 1;
@@ -86,39 +87,87 @@ void deplacement_menu_mouse (menu_t m, const SDL_Event* event)
 void deplacement_menu_key (menu_t m, SDLKey key)
 {
 	Affiche_entry(m, NORMAL);
-	switch (key)
+	if (m->nb_entries == 5)
 	{
-	case SDLK_RIGHT:
-		++(m->cur.x);
-		if (m->cur.y != 1)
-			m->cur.y = 1;
-		break;
-	case SDLK_LEFT:
-		--(m->cur.x);
-		if (m->cur.y != 1)
-			m->cur.y = 1;
-		break;
-	case SDLK_UP:
-		--(m->cur.y);
-		if (m->cur.x != 1)
-			m->cur.x = 1;
-		break;
-	case SDLK_DOWN:
-		++(m->cur.y);
-		if (m->cur.x != 1)
-			m->cur.x = 1;
-		break;
-	default:
-		break;
+		switch (key)
+		{
+		case SDLK_RIGHT:
+			++(m->cur.x);
+			if (m->cur.y != 1)
+				m->cur.y = 1;
+			break;
+		case SDLK_LEFT:
+			--(m->cur.x);
+			if (m->cur.y != 1)
+				m->cur.y = 1;
+			break;
+		case SDLK_UP:
+			--(m->cur.y);
+			if (m->cur.x != 1)
+				m->cur.x = 1;
+			break;
+		case SDLK_DOWN:
+			++(m->cur.y);
+			if (m->cur.x != 1)
+				m->cur.x = 1;
+			break;
+		default:
+			break;
+		}
+
+		if (m->cur.x >= 3)
+			m->cur.x = 0;
+		if (m->cur.x < 0)
+			m->cur.x = 2;
+		if (m->cur.y >= 3)
+			m->cur.y = 0;
+		if (m->cur.y < 0)
+			m->cur.y = 2;
 	}
-	if (m->cur.x >= 3)
-		m->cur.x = 0;
-	if (m->cur.x < 0)
-		m->cur.x = 2;
-	if (m->cur.y >= 3)
-		m->cur.y = 0;
-	if (m->cur.y < 0)
-		m->cur.y = 2;
+	else
+	{
+		switch (key)
+		{
+		case SDLK_RIGHT:
+			++(m->cur.x);
+			if (m->cur.x >= 3)
+				m->cur.x = 0;
+			if (m->cur.x == 0 && m->cur.y == 0)
+				m->cur.x = 1;
+			if (m->cur.x == 2 && m->cur.y == 2)
+				m->cur.x = 0;
+			break;
+		case SDLK_LEFT:
+			--(m->cur.x);
+			if (m->cur.x < 0)
+				m->cur.x = 2;
+			if (m->cur.x == 0 && m->cur.y == 0)
+				m->cur.x = 2;
+			if (m->cur.x == 2 && m->cur.y == 2)
+				m->cur.x = 1;
+			break;
+		case SDLK_UP:
+			--(m->cur.y);
+			if (m->cur.y < 0)
+				m->cur.y = 2;
+			if (m->cur.x == 0 && m->cur.y == 0)
+				m->cur.y = 2;
+			if (m->cur.x == 2 && m->cur.y == 2)
+				m->cur.y = 1;
+			break;
+		case SDLK_DOWN:
+			++(m->cur.y);
+			if (m->cur.y >= 3)
+				m->cur.y = 0;
+			if (m->cur.x == 0 && m->cur.y == 0)
+				m->cur.y = 1;
+			if (m->cur.x == 2 && m->cur.y == 2)
+				m->cur.y = 0;
+			break;
+		default:
+			break;
+		}
+	}
 	Affiche_entry(m, POINTE);
 	play_clik();
 }

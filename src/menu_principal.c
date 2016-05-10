@@ -45,7 +45,7 @@ int menu_taille (SDL_Surface* window, scrolling_t scroll)
 				sprintf (entries [2], "%dx%d", param->size, param->size);
 				vec2 c = m->cur;
 				m->cur.x = 1;
-				m->cur.x = 1;
+				m->cur.y = 1;
 				Affiche_entry (m, 0);
 				m->cur = c;
 			}
@@ -58,7 +58,7 @@ int menu_taille (SDL_Surface* window, scrolling_t scroll)
 				sprintf (entries [2], "%dx%d", param->size, param->size);
 				vec2 c = m->cur;
 				m->cur.x = 1;
-				m->cur.x = 1;
+				m->cur.y = 1;
 				Affiche_entry (m, 0);
 				m->cur = c;
 			}
@@ -134,6 +134,13 @@ int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
 	entries [2] = malloc (sizeof (char)* 9);
 	char** liste;
 	int nb_sav = listeSauvegarde(&liste);
+	if (nb_sav == 0)
+	{
+		liste = malloc(sizeof(char*));
+		*liste = malloc(sizeof(char) * 5);
+		strcpy (*liste, "None");
+		nb_sav = 1;
+	}
 	int cur = 0;
 	sprintf (entries [2], "%s", liste[cur]);
 	menu_t m = init_menu (window, entries);
@@ -168,10 +175,11 @@ int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
 				cur = nb_sav - 1;
 			else
 				--cur;
+			printf ("%d\n", cur);
 			sprintf (entries [2], "%s", liste[cur]);
 			vec2 c = m->cur;
 			m->cur.x = 1;
-			m->cur.x = 1;
+			m->cur.y = 1;
 			Affiche_entry (m, 0);
 			m->cur = c;
 			break;
@@ -179,10 +187,11 @@ int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
 		case M_RIGHT :
 		{
 			cur = (cur + 1) % nb_sav;
+			printf ("%d\n", cur);
 			sprintf (entries [2], "%s", liste[cur]);
 			vec2 c = m->cur;
 			m->cur.x = 1;
-			m->cur.x = 1;
+			m->cur.y = 1;
 			Affiche_entry (m, 0);
 			m->cur = c;
 			break;
@@ -191,6 +200,17 @@ int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
 			end = true;
 			break;
 		case M_MID :
+			supprimer (entries [2]);
+			free_liste (liste, nb_sav);
+			int nb_sav = listeSauvegarde(&liste);
+			if (nb_sav == 0)
+			{
+				liste = malloc(sizeof(char*));
+				*liste = malloc(sizeof(char) * 5);
+				strcpy (*liste, "None");
+				nb_sav = 1;
+			}
+			cur = 0;
 			break;
 		}
 	}
@@ -207,13 +227,13 @@ int menu_principal (SDL_Surface* window, char** file)
 	Affiche_menu(m);
 	int retour;
 	bool end = false;
-	char* message [] = {"Crédits : petite bite & gros chakal Corp.", "Breaking News : Le Soudan en manque de soudeurs", "lmqsdkmq", "There is nothing to see here ... BASTARD !"};
+	char* message [] = {"Crédits : Hugo Mathieux - Nathan Gouardères - Nolain Lehoux", "Crédits : Hugo Mathieux - Nathan Gouardères - Nolain Lehoux", "Crédits : Hugo Mathieux - Nathan Gouardères - Nolain Lehoux", "Crédits : Hugo Mathieux - Nathan Gouardères - Nolain Lehoux"};//"Crédits : petite bite & gros chakal Corp.", "Breaking News : Le Soudan en manque de soudeurs", "lmqsdkmq", "There is nothing to see here ... BASTARD !"};
 	SDL_Color c [] = {{170,10,107}, {60,255,1}, {0, 0, 0}, {200, 180, 201}};
 	scrolling_t scroll = init_scroll (window, message, c, 4);
 
+	SDL_Event event;
 	while (!end)
 	{
-		SDL_Event event;
 		event = scroll_msg (window, scroll);
 		if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
 		{
@@ -253,5 +273,9 @@ int menu_principal (SDL_Surface* window, char** file)
 	}
 	free_menu(m);
 	free_scroll (scroll);
+	do
+	{
+		SDL_WaitEvent (&event);
+	} while (event.type != SDL_MOUSEBUTTONUP && event.type != SDL_KEYUP);
 	return retour;
 }

@@ -44,6 +44,8 @@ void load_param (SDL_Surface* w)
 			perror (F_FONT);
 			exit (1);
 		}
+		param->chunk_vol = 0.5 * MIX_MAX_VOLUME;
+		param->music_vol = 0.5 * MIX_MAX_VOLUME;
 	}
 	else
 	{
@@ -81,6 +83,12 @@ void load_param (SDL_Surface* w)
 			perror (police);
 			exit (1);
 		}
+		fscanf (param_file, "%s = %u", buffer, &(param->chunk_vol));
+		if (0 > param->chunk_vol || param->chunk_vol > MIX_MAX_VOLUME)
+			param->chunk_vol = 0.5 * MIX_MAX_VOLUME;
+		fscanf (param_file, "%s = %u", buffer, &(param->music_vol));
+		if (0 > param->music_vol || param->music_vol > MIX_MAX_VOLUME)
+			param->music_vol = 0.5 * MIX_MAX_VOLUME;
 		fclose (param_file);
 	}
 	param->size = 11;
@@ -117,9 +125,11 @@ void save_param (SDL_Surface* w)
 				fseek (param_file, -strlen(buffer) - strlen(police) - 3, SEEK_CUR);
 			else if (readed == 1)
 				fseek (param_file, -strlen(buffer), SEEK_CUR);
-			fprintf (param_file, "police = %s", F_FONT);
+			fprintf (param_file, "police = %s\n", F_FONT);
 		}
 	}
+	fprintf (param_file, "son_vol = %u\n", param->chunk_vol);
+	fprintf (param_file, "music_vol = %u\n", param->music_vol);
 	free (param);
 	fclose (param_file);
 

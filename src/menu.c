@@ -17,6 +17,7 @@ menu_t init_menu (SDL_Surface* window, char** entries)
 {
 	menu_t m = malloc (sizeof (struct s_menu));
 	m->entries = entries;
+	m->nb_entries = 5;
 	m->window = window;
 	m->cur.x = 1;
 	m->cur.y = 1;
@@ -50,7 +51,7 @@ int evenement_menu (SDL_Surface* window, menu_t m, SDL_Event event, bool persist
 			else
 				east1 (window, event.key.keysym.sym);
 			break;
-		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONDOWN:
 			return selection_menu (m);
 			break;
 		case SDL_MOUSEMOTION:

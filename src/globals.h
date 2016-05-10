@@ -28,7 +28,10 @@
 #define M_RIGHT 2
 #define M_DOWN 3
 #define M_MID 5
-#define M_NOT 6
+#define M7_DOWN 6
+#define M7_UP 7
+#define M_NOT 8
+#define M_QUIT 10
 
 typedef struct s_vec3{
 	int x;
@@ -73,9 +76,9 @@ typedef struct s_param {
 	SDL_Color rgb_in, rgb_ex, rgb_j1, rgb_j2, rgb_background;
 	TTF_Font* font;
 	Mix_Music* music;
-	unsigned char music_vol;
+	unsigned int music_vol;
 	Mix_Chunk* click,* gong;
-	unsigned char chunk_vol;
+	unsigned int chunk_vol;
 	int size;
 }* param_t;
 
