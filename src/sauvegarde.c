@@ -103,7 +103,7 @@ int chargement(char *nom , int **tab, int *IA)
 		return ERROR_IA;
 	}
 	fscanf(f_chargement, "%d", &taille);
-	if(taille<1 || taille > SIZE_MAX){
+	if(taille<1 || taille > MAXSIZE){
 		return ERROR_SIZE;
 	}
 

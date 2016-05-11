@@ -97,17 +97,19 @@ SDL_Surface* fullscreen_window (SDL_Surface* window)
 	else
 	{
 		SDL_Rect** modes = SDL_ListModes(window->format, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF);
-		if(modes == (SDL_Rect **)0)
+		/*if(modes == (SDL_Rect **)0)
 		{
 			printf("No modes available!\n");
-		}
+		}*/
 
 		/* Check if our resolution is restricted */
-		if(modes == (SDL_Rect **)-1)
+		/*if(modes == (SDL_Rect **)-1)
 		{
 			printf("All resolutions available.\n");
 		}
-		else{
+		else{*/
+		if(modes != (SDL_Rect **)-1)
+		{
 			/* Print valid modes
 			printf("Available Modes\n");
 			for(int i=0;modes[i];++i)

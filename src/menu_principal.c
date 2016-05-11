@@ -52,7 +52,7 @@ int menu_taille (SDL_Surface* window, scrolling_t scroll)
 			break;
 		case M_RIGHT :
 		{
-			if (param->size < SIZE_MAX)
+			if (param->size < MAXSIZE)
 			{
 				++param->size;
 				sprintf (entries [2], "%dx%d", param->size, param->size);
@@ -175,7 +175,6 @@ int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
 				cur = nb_sav - 1;
 			else
 				--cur;
-			printf ("%d\n", cur);
 			sprintf (entries [2], "%s", liste[cur]);
 			vec2 c = m->cur;
 			m->cur.x = 1;
@@ -187,7 +186,6 @@ int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
 		case M_RIGHT :
 		{
 			cur = (cur + 1) % nb_sav;
-			printf ("%d\n", cur);
 			sprintf (entries [2], "%s", liste[cur]);
 			vec2 c = m->cur;
 			m->cur.x = 1;
