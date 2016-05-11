@@ -9,6 +9,18 @@
 #include "sound.h"
 #include "testJeu.h"
 
+void annuler (plateau_t p)
+{
+	if (p->annule)
+	{
+		p->grid [p->hist [--p->nb_coups]] = 0;
+		//Affiche_hexagon(p, p->hist [p->nb_coups] / NBSIDE, p->hist [p->nb_coups] % NBSIDE, NORMAL);
+		p->hist [p->nb_coups] = -1;
+		p->player = !p->player;
+		p->annule = false;
+	}
+}
+
 int selection (plateau_t p, curseur_t c)
 {
 	if (0 <= c.x && c.x < NBSIDE && 0 <= c.y && c.y < NBSIDE && p->grid [c.x * NBSIDE + c.y] == 0)
@@ -16,6 +28,7 @@ int selection (plateau_t p, curseur_t c)
 		p->grid [c.x * NBSIDE + c.y] = PLAYER(p->player);
 		p->hist [p->nb_coups++] = c.x * NBSIDE + c.y;
 		p->player = !p->player;
+		p->annule = true;
 		Affiche_hexagon(p, c.x, c.y, PLAYER(p->player));
 		return testGagne (p->grid, PLAYER(!p->player));
 	}/*

@@ -33,8 +33,16 @@ bool d_menu_mouse (plateau_t p, SDL_MouseMotionEvent motion)
 
 int menu_hist (plateau_t p)
 {
-	char* entries [5] = {"<", "", "", "Retour", ">"};
+	char* entries [7] = {"Case", "", "", "Retour", ">", "<", ""};//{"Case", "Joueur 1", " 6 - 4 ", "Retour", ">", "<", " Coup 4 "};
+	entries [1] = malloc (sizeof (char) * 9);
+	entries [2] = malloc (sizeof (char) * 8);
+	entries [6] = malloc (sizeof (char) * 9);
+	int cur = p->nb_coups - 1;
+	sprintf (entries [1], "Joueur %d", PLAYER(cur%2));
+	sprintf (entries [2], " %2d - %2d ", p->hist[cur] / NBSIDE + 1, p->hist[cur] % NBSIDE + 1);
+	sprintf (entries [6], " Coup %3d ", cur);
 	menu_t m = init_menu (p->window, entries);
+	m->nb_entries = 7;
 	Affiche_menu(m);
 	int retour;
 	bool end = false;
@@ -52,29 +60,42 @@ int menu_hist (plateau_t p)
 		switch (retour)
 		{
 		case M_UP:
-			menu_music (p->window, NULL);
-			m->cur.x = 1;
-			m->cur.y = 1;
-			Affiche_menu(m);
+			break;
+		case M7_UP:
+			if (cur <= 0)
+				cur = p->nb_coups - 1;
+			else
+				--cur;
+			sprintf (entries [1], "Joueur %d", PLAYER(cur%2));
+			sprintf (entries [2], " %2d - %2d ", p->hist[cur] / NBSIDE + 1, p->hist[cur] % NBSIDE + 1);
+			sprintf (entries [6], " Coup %3d ", cur);
+			Affiche_menu (m);
 			break;
 		case M_LEFT :
-			end = true;
 			break;
 		case M_RIGHT :
-			menu_son (p->window, NULL);
-			m->cur.x = 1;
-			m->cur.y = 1;
-			Affiche_menu(m);
+			if (cur >= p->nb_coups - 1)
+				cur = 0;
+			else
+				++cur;
+			sprintf (entries [1], "Joueur %d", PLAYER(cur%2));
+			sprintf (entries [2], " %2d - %2d ", p->hist[cur] / NBSIDE + 1, p->hist[cur] % NBSIDE + 1);
+			sprintf (entries [6], " Coup %3d ", cur);
+			Affiche_menu (m);
 			break;
 		case M_DOWN :
 			end = true;
 			break;
+		case M7_DOWN :
+			break;
 		case M_MID :
-			end = true;
 			break;
 		}
 	}
 	free_menu(m);
+	free (entries[1]);
+	free (entries[2]);
+	free (entries[6]);
 	return retour;
 }
 
@@ -265,7 +286,7 @@ int menu_en_jeu_part1 (plateau_t p)
 	SDL_Surface* save = SDL_CreateRGBSurface (SDL_HWSURFACE, p->window->w, p->window->h, p->window->format->BitsPerPixel, 0, 0, 0, 0);
 	SDL_BlitSurface (p->window, NULL, save, NULL);
 	vec2 resize = {p->window->w, p->window->h};
-	char* entries [7] = {"Hist", "Save", "HEX", "Quitter", ">", "sdoul", "7"};
+	char* entries [7] = {"Hist", "Save", "HEX", "Quitter", ">", "Cancel", "Retour"};
 	menu_t m = init_menu (p->window, entries);
 	m->nb_entries = 7;
 	Affiche_menu(m);
@@ -282,7 +303,7 @@ int menu_en_jeu_part1 (plateau_t p)
 			retour = M_DOWN;
 		else
 			retour = evenement_menu(p->window, m, event, 0);
-		if (retour != M_NOT)
+		if (retour == M_UP || retour == M_RIGHT)
 		{
 			if (resize.x == p->window->w && resize.y == p->window->h)
 				SDL_BlitSurface (save, NULL, p->window, NULL);
@@ -298,6 +319,13 @@ int menu_en_jeu_part1 (plateau_t p)
 			Affiche_menu(m);
 			break;
 		case M_LEFT :
+			if (p->nb_coups > 0)
+			{
+				menu_hist (p);
+				m->cur.x = 1;
+				m->cur.y = 1;
+				Affiche_menu(m);
+			}
 			break;
 		case M_RIGHT :
 			end = true;
@@ -306,7 +334,12 @@ int menu_en_jeu_part1 (plateau_t p)
 			end = true;
 			break;
 		case M_MID :
+			break;
+		case M7_DOWN :
 			end = true;
+			break;
+		case M7_UP :
+			annuler (p);
 			break;
 		}
 	}
@@ -332,7 +365,7 @@ int menu_en_jeu (plateau_t p)
 			retour = menu_en_jeu_part1(p);
 		else if (retour == M_RIGHT)
 			retour = menu_en_jeu_part2(p);
-	} while (retour != M_MID && retour != M_DOWN);
+	} while (retour != M_MID && retour != M_DOWN && retour != M7_DOWN);
 
 	SDL_BlitSurface (save, NULL, p->window, NULL);
 	SDL_FreeSurface (save);

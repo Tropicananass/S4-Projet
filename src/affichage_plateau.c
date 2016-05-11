@@ -263,6 +263,7 @@ plateau_t init_plateau (SDL_Surface* window)
 	p->nb_coups = 0;
 	p->window = window;
 	p->player = false;
+	p->annule = false;
 	Quadrille (p);
 	return p;
 }
@@ -273,6 +274,7 @@ plateau_t load_plateau (SDL_Surface* window, int* hist)
 	p->grid = malloc (sizeof (int) * NBSIDE * NBSIDE);
 	p->hist = hist;
 	p->player = false;
+	p->annule = false;
 	for (int i = 0; i < NBSIDE * NBSIDE; ++i)
 		p->grid [i] = 0;
 	for (p->nb_coups = 0; p->nb_coups < NBSIDE * NBSIDE && hist [p->nb_coups] != -1; ++p->nb_coups)

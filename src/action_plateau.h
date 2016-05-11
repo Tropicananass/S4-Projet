@@ -5,6 +5,8 @@
 
 #include "globals.h"
 
+void annuler (plateau_t p);
+
 int selection (plateau_t p, curseur_t c);
 
 void deplacement_mouse (plateau_t p, SDL_MouseMotionEvent motion, curseur_t* c);

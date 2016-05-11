@@ -245,6 +245,8 @@ int selection_menu (menu_t m)
 	{
 	case 01:
 		return M_LEFT;
+	case 02:
+		return M7_DOWN;
 	case 10:
 		return M_UP;
 	case 11:
@@ -258,6 +260,8 @@ int selection_menu (menu_t m)
 		return M_MID;
 	case 12:
 		return M_DOWN;
+	case 20:
+		return M7_UP;
 	case 21:
 		return M_RIGHT;
 	default:

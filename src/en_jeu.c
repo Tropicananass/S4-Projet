@@ -47,14 +47,20 @@ void en_jeu (SDL_Surface* window, int* hist)
 	Reset_window(window);
 	Mix_PlayMusic(param->music, -1);
 	plateau_t plateau;
+	d_scrolling_t d;
 	if (hist == NULL)
+	{
 		plateau = init_plateau (window);
+		d = init_dynamic_scroll (window, plateau);
+	}
 	else
+	{
 		plateau = load_plateau (window, hist);
+		d = resize_dynamic_scroll (window, NULL, plateau);
+	}
 	vec2 c = {0, 0};
 	bool end = false;
 	bool gagne = false;
-	d_scrolling_t d = init_dynamic_scroll (window, plateau);
 	bool button = false;
 	while (!end)
 	{
@@ -131,8 +137,6 @@ void en_jeu (SDL_Surface* window, int* hist)
 		}
 		if (gagne)
 		{
-			while (!end)
-			{
 				char new [50];
 				sprintf (new, "Joueur %d Gagne !!", PLAYER(!plateau->player));
 				SDL_Surface* txt;
@@ -140,13 +144,15 @@ void en_jeu (SDL_Surface* window, int* hist)
 					txt = TTF_RenderUTF8_Blended (param->font, new, param->rgb_j1);
 				else
 					txt = TTF_RenderUTF8_Blended (param->font, new, param->rgb_j2);
-				SDL_Surface* final = rotozoomSurface (txt, .0, window->w / txt->w, 1);
+				SDL_Surface* final = rotozoomSurface (txt, .0, window->w / (float)txt->w, 1);
 				SDL_FreeSurface (txt);
 				SDL_BlitSurface (final, NULL , window, NULL);
 				SDL_FreeSurface (final);
-				SDL_Event e;
-				SDL_WaitEvent (&e);
-				if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
+				SDL_Flip (window);
+			while (!end)
+			{
+				SDL_WaitEvent (&event);
+				if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
 					end = true;
 			}
 		}

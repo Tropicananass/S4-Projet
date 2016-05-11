@@ -195,7 +195,7 @@ d_scrolling_t init_dynamic_scroll (SDL_Surface* window, plateau_t p)
 
 	SDL_Surface* j1 = d->s->msg [1];
 
-	char new [50] = "Dernier coup : joueur 2 en 00 - 00";
+	char new [50] = "Dernier coup : joueur 2 en 00 - 00  ";
 	d->s->msg[1] = create_one_surface (new, param->rgb_j1, d->s->msg[0]->h, window->format->BitsPerPixel);
 
 
@@ -222,7 +222,7 @@ SDL_Event dynamic_scroll (SDL_Surface* window, d_scrolling_t d, plateau_t p)
 			Cadre_scroll (window);
 			d->id = !d->id;
 			char new [50];
-			sprintf (new, "Dernier coup : joueur %d en %2d - %2d", PLAYER(!p->player), p->hist[p->nb_coups - 1] / NBSIDE + 1, p->hist[p->nb_coups - 1] % NBSIDE + 1);
+			sprintf (new, "Dernier coup : joueur %d en %2d - %2d  ", PLAYER(!p->player), p->hist[p->nb_coups - 1] / NBSIDE + 1, p->hist[p->nb_coups - 1] % NBSIDE + 1);
 			if (p->player)
 				d->s->msg[1] = create_one_surface (new, param->rgb_j1, d->s->msg[0]->h, window->format->BitsPerPixel);
 			else
@@ -250,7 +250,14 @@ SDL_Event dynamic_scroll (SDL_Surface* window, d_scrolling_t d, plateau_t p)
 
 d_scrolling_t resize_dynamic_scroll (SDL_Surface* window, d_scrolling_t d, plateau_t p)
 {
-	free_scroll (d->s);
+	if (d == NULL)
+		d = malloc (sizeof (struct s_d_scrolling));
+	else
+	{
+		if (d->precedent != NULL && d->precedent != d->s->msg [1])
+			SDL_FreeSurface (d->precedent);
+		free_scroll (d->s);
+	}
 	d->s = malloc (sizeof (struct s_scrolling));
 	char* msg [2] = {"Au tour du Joueur 2", "Au tour du Joueur 1"};
 	SDL_Color c [2] = {param->rgb_j2, param->rgb_j1};

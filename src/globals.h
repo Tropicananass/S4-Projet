@@ -67,6 +67,7 @@ typedef struct s_plateau {
 	int *hist;
 	int nb_coups;
 	bool player;
+	bool annule;
 	int ia;
 	SDL_Rect menu;
 }* plateau_t;

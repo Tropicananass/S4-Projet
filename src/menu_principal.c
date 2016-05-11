@@ -202,7 +202,7 @@ int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
 		case M_MID :
 			supprimer (entries [2]);
 			free_liste (liste, nb_sav);
-			int nb_sav = listeSauvegarde(&liste);
+			nb_sav = listeSauvegarde(&liste);
 			if (nb_sav == 0)
 			{
 				liste = malloc(sizeof(char*));
