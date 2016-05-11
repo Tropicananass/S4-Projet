@@ -9,6 +9,7 @@
 
 #include "affichage_menu.h"
 #include "affichage_plateau.h"
+#include "action_plateau.h"
 #include "menu.h"
 #include "sub_menu.h"
 #include "sauvegarde.h"
@@ -135,7 +136,7 @@ int menu_save (plateau_t p)
 			}
 			vec2 c = m->cur;
 			m->cur.x = 1;
-			m->cur.x = 1;
+			m->cur.y = 1;
 			Affiche_entry (m, 0);
 			m->cur = c;
 		}
@@ -152,7 +153,7 @@ int menu_save (plateau_t p)
 			}
 			vec2 c = m->cur;
 			m->cur.x = 1;
-			m->cur.x = 1;
+			m->cur.y = 1;
 			Affiche_entry (m, 0);
 			m->cur = c;
 		}
@@ -163,7 +164,7 @@ int menu_save (plateau_t p)
 			entries [2] [cur] = '_';
 			vec2 c = m->cur;
 			m->cur.x = 1;
-			m->cur.x = 1;
+			m->cur.y = 1;
 			Affiche_entry (m, 0);
 			m->cur = c;
 		}
@@ -178,23 +179,34 @@ int menu_save (plateau_t p)
 				end = true;
 				char** liste;
 				int nb = listeSauvegarde (&liste);
+				entries [2] [cur] = '\0';
 				for (int i = 0; i < nb && end; ++i)
 					if (!strcmp (entries [2], liste [i]))
 					{
-						strcpy (entries [2], "existe déjà");
 						cur = 1;
 						vec2 c = m->cur;
 						m->cur.x = 1;
-						m->cur.x = 1;
+						m->cur.y = 1;
 						Affiche_entry (m, 0);
 						m->cur = c;
 						end = 0;
 					}
 				free_liste (liste, nb);
-				if (end)
+				if (end || confirmation (p->window, NULL, "Écraser", entries [2]) == M_UP)
 				{
-					entries [2] [cur] = '\0';
 					sauvegarde (entries [2], p->hist, p->ia);
+					end = true;
+				}
+				else
+				{
+					if (cur != 8)
+					{
+						entries [2] [cur] = '_';
+						entries [2] [cur + 1] = '\0';
+					}
+					m->cur.x = 1;
+					m->cur.y = 1;
+					Affiche_menu(m);
 				}
 			}
 			break;
@@ -204,7 +216,7 @@ int menu_save (plateau_t p)
 			cur = 8;
 			vec2 c = m->cur;
 			m->cur.x = 1;
-			m->cur.x = 1;
+			m->cur.y = 1;
 			Affiche_entry (m, 0);
 			m->cur = c;
 			break;
@@ -215,7 +227,7 @@ int menu_save (plateau_t p)
 			cur = 8;
 			vec2 c = m->cur;
 			m->cur.x = 1;
-			m->cur.x = 1;
+			m->cur.y = 1;
 			Affiche_entry (m, 0);
 			m->cur = c;
 			break;
@@ -303,7 +315,7 @@ int menu_en_jeu_part1 (plateau_t p)
 			retour = M_DOWN;
 		else
 			retour = evenement_menu(p->window, m, event, 0);
-		if (retour == M_UP || retour == M_RIGHT)
+		if (retour == M_UP || retour == M_RIGHT || retour == M7_UP)
 		{
 			if (resize.x == p->window->w && resize.y == p->window->h)
 				SDL_BlitSurface (save, NULL, p->window, NULL);
@@ -339,7 +351,11 @@ int menu_en_jeu_part1 (plateau_t p)
 			end = true;
 			break;
 		case M7_UP :
-			annuler (p);
+			if (confirmation (p->window, NULL, "Annuler le ", "dernier coup") == M_UP)
+				annuler (p);
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
 			break;
 		}
 	}

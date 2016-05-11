@@ -200,17 +200,24 @@ int menu_charger (SDL_Surface* window, scrolling_t scroll, char** file)
 			end = true;
 			break;
 		case M_MID :
-			supprimer (entries [2]);
-			free_liste (liste, nb_sav);
-			nb_sav = listeSauvegarde(&liste);
-			if (nb_sav == 0)
+			if (confirmation (window, scroll, "supprimer", entries [2]) == M_UP)
 			{
-				liste = malloc(sizeof(char*));
-				*liste = malloc(sizeof(char) * 5);
-				strcpy (*liste, "None");
-				nb_sav = 1;
+				supprimer (entries [2]);
+				free_liste (liste, nb_sav);
+				nb_sav = listeSauvegarde(&liste);
+				if (nb_sav == 0)
+				{
+					liste = malloc(sizeof(char*));
+					*liste = malloc(sizeof(char) * 5);
+					strcpy (*liste, "None");
+					nb_sav = 1;
+				}
+				cur = 0;
+				sprintf (entries [2], "%s", liste[cur]);
 			}
-			cur = 0;
+			m->cur.x = 1;
+			m->cur.y = 1;
+			Affiche_menu(m);
 			break;
 		}
 	}

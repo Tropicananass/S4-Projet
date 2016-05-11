@@ -15,6 +15,50 @@
 
 #define VOL(x) x * MIX_MAX_VOLUME / 100
 
+int confirmation (SDL_Surface* window, scrolling_t scroll, char* ask1, char* ask2)
+{
+	char* entries [5] = {"?", " OUI ", "?", " NON ", "?"};
+	if (ask1 != NULL)
+		entries [0] = ask1;
+	if (ask2 != NULL)
+		entries [2] = ask2;
+	menu_t m = init_menu (window, entries);
+	Affiche_menu(m);
+	int retour;
+	bool end = false;
+	while (!end)
+	{
+		SDL_Event event;
+		if (scroll == NULL)
+			SDL_WaitEvent (&event);
+		else
+			event = scroll_msg (window, scroll);
+		if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
+			retour = M_DOWN;
+		else
+			retour = evenement_menu(window, m, event, 1);
+		if ((event.type == SDL_VIDEORESIZE || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_f)) && scroll != NULL)
+			scroll = resize_scroll(window, scroll);
+		switch (retour)
+		{
+		case M_UP:
+			end = true;
+			break;
+		case M_LEFT :
+			break;
+		case M_RIGHT :
+			break;
+		case M_DOWN :
+			end = true;
+			break;
+		case M_MID :
+			break;
+		}
+	}
+	free_menu(m);
+	return retour;
+}
+
 int menu_music (SDL_Surface* window, scrolling_t scroll)
 {
 	bool en_jeu = Mix_PlayingMusic();
